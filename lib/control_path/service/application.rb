@@ -8,23 +8,13 @@ module ControlPath::Service
   class Application < Sinatra::Base
     register Sinatra::Namespace
 
-    module Constants
-      def root_dir
-        File.expand_path('../../../..', __FILE__).freeze
-      end
-      def public_dir
-        "#{root_dir}/public"
-      end
-      def tmp_dir
-        "#{root_dir}/tmp"
-      end
-      extend self
-    end
+    ROOT_DIR = File.expand_path('../../../..', __FILE__).freeze
+    PUBLIC_DIR = "#{ROOT_DIR}/public"
 
     set :app_file       , __FILE__
-    set :root           , Constants.root_dir
-    set :public_folder  , Constants.public_dir
-    set :tmp_folder     , Constants.tmp_dir
+    set :root           , ROOT_DIR
+    set :public_folder  , PUBLIC_DIR
+    set :tmp_folder     , "#{ROOT_DIR}/tmp"
     set :static         , true
     set :reload_templates , false
     #set :sessions       , true
@@ -32,7 +22,7 @@ module ControlPath::Service
 
     def initialize opts = { }
       @logger = opts[:logger] || ::Logger.new($stderr)
-      @store  = opts[:store] || ControlPath::Service::Store.new(dir: "#{Constants.public_dir}/data", logger: logger)
+      @store  = opts[:store] || ControlPath::Service::Store.new(dir: "#{PUBLIC_DIR}/data", logger: logger)
     end
     attr_accessor :store, :logger
 
@@ -103,7 +93,7 @@ module ControlPath::Service
       end
 
       helpers do
-        include Constants, ControlPath::Json
+        include ControlPath::Json
 
         def server_metadata
           @server_metadata ||= {
