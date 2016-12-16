@@ -71,6 +71,19 @@ module ControlPath::Service
       end
     end
 
+    def update_status! path, control, request, params
+      seen_version = params[:version]
+      status = {
+        time: format_time(now),
+        client_ip: request.ip.to_s,
+        path: path,
+        seen_version: seen_version,
+        seen_current_version: control[:version] == seen_version,
+        params: params,
+      }
+      save_status!(path, status)
+    end
+
     # Implementation
 
     def now

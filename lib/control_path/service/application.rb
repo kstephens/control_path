@@ -60,17 +60,8 @@ module ControlPath::Service
         namespace '/client' do
           get PATH_RX do
             control = store.fetch_control!(path)
-            begin
-              seen_version = params[:version]
-              status = {
-                time: now,
-                client_ip: request.ip.to_s,
-                path: path,
-                seen_version: seen_version,
-                is_current: control[:version] == seen_version,
-                params: clean_params,
-              }
-              store.save_status!(path, status)
+          begin
+            store.update_status!(path, control, request, clean_params)
             rescue => exc
               logger.error exc
               control[:status] = 'API-ERROR'
