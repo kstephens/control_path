@@ -7,14 +7,14 @@ if defined? ::Unicorn
   use Unicorn::WorkerKiller::Oom, (700*(1024**2)), (800*(1024**2)), 1, true
 end
 
-require 'control_path/service'
+require 'control_path/service/application'
 require 'awesome_print'
 require 'rack_console/app'
 
 use Rack::Reloader unless ENV['RACK_ENV'] == 'production'
 use Rack::MethodOverride
 
-service = ControlPath::Service.new
+service = ControlPath::Service::Application.new
 run Rack::URLMap.
   new(
       "/__console__" =>
