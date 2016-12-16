@@ -1,12 +1,6 @@
 current_dir = ::File.expand_path('..', __FILE__)
 $:.unshift(::File.join(current_dir, 'lib'))
 
-if defined? ::Unicorn
-  require 'unicorn/worker_killer'
-  use Unicorn::WorkerKiller::MaxRequests, 1000, 1200
-  use Unicorn::WorkerKiller::Oom, (700*(1024**2)), (800*(1024**2)), 1, true
-end
-
 require 'control_path/service/application'
 require 'awesome_print'
 require 'rack_console/app'
