@@ -73,12 +73,13 @@ module ControlPath::Service
 
     def update_status! path, control, request, params
       seen_version = params[:version]
+      seen_current_version = control[:version].to_s == seen_version.to_s
       status = {
         time: format_time(now),
         client_ip: request.ip.to_s,
         path: path,
         seen_version: seen_version,
-        seen_current_version: control[:version] == seen_version,
+        seen_current_version: seen_current_version,
         params: params,
       }
       save_status!(path, status)
@@ -87,7 +88,7 @@ module ControlPath::Service
     # Implementation
 
     def now
-      @now ||= Time.now.utc
+      Time.now.utc
     end
 
     def client_dir
