@@ -9,15 +9,18 @@ module ControlPath
       Net::HTTP.start(uri.host, uri.port) do |http|
         request = Net::HTTP::Get.new uri
         response = http.request request
+        response = Response.new(response, uri)
+        yield response
       end
-      Response.new(response)
     end
 
     class Response
-      attr_reader :response
-      
-      def initialize response
+      attr_reader :response, :at, :uri
+
+      def initialize response, uri
         @response = response
+        @at = Time.now.utc
+        @uri = uri
       end
       def status
         @response.code.to_i

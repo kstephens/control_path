@@ -137,7 +137,6 @@ module ControlPath::Service
       name = File.basename(name)
       Dir["#{base}/#{dir}/**/#{name}"].sort.map do | file |
         rx = %r{\A#{Regexp.quote(base)}/(.+?)/#{Regexp.quote(name)}\Z}
-        # ap(file: file, rx: rx)
         if m = rx.match(file)
           { file: file,
             path: m[1],
@@ -170,6 +169,10 @@ module ControlPath::Service
 
     def format_time time
       time.iso8601(3)
+    end
+
+    def logger
+      @logger ||= ::Logger.new($stderr)
     end
   end
 end
