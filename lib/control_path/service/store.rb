@@ -181,7 +181,7 @@ module ControlPath::Service
     end
 
     def format_time time
-      time.iso8601(3)
+      time.getutc.iso8601(3)
     end
 
     def logger
