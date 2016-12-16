@@ -59,7 +59,8 @@ module ControlPath::Client
           end
         end
       rescue => exc
-        logger.error "#{uri} failed: #{exc.inspect}\n  #{exc.backtrace.join("\n  ")}"
+        logger.error "#{uri} failed: #{exc.inspect}"
+        # logger.error exc
       end
     end
 
