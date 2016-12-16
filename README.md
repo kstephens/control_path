@@ -12,7 +12,7 @@ Example
 =======
 
 ```
- $ bundle exec rackup -p 9999
+ $ bundle exec rackup -s thin -p 9999
 ```
 
 ```

@@ -27,4 +27,5 @@ group :development do
   gem "rspec", "~> 2.14"
   gem "guard-rspec", "~> 4.2"
   gem "simplecov", "~> 0.8"
+  gem "thin", "~> 1.7.0"
 end
