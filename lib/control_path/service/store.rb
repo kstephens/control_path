@@ -13,10 +13,6 @@ module ControlPath::Service
       @dir = opts[:dir] or raise ArgumentError
     end
 
-    def save_status! path, data
-      write_file(status_file(path), data)
-    end
-
     def fetch_status! path
       files = locate_files(client_dir, "#{path}/status.json")
       result =
@@ -86,6 +82,10 @@ module ControlPath::Service
     end
 
     # Implementation
+
+    def save_status! path, data
+      write_file(status_file(path), data)
+    end
 
     def now
       Time.now.utc
