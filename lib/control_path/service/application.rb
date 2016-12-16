@@ -2,8 +2,6 @@ require 'control_path/service'
 require 'control_path/json'
 require 'sinatra'
 require 'sinatra/namespace'
-require 'awesome_print'
-require 'time' # iso8601
 require 'logger'
 
 module ControlPath::Service
@@ -43,15 +41,15 @@ module ControlPath::Service
       namespace '/api' do
         get '/?' do
           endpoints = {
-            '/admin/api/client/PATH' => {
+            '/api/client/PATH' => {
               methods: [ 'GET' ],
               description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act.",
             },
-            '/admin/api/status/PATH'  => {
+            '/api/status/PATH'  => {
               methods: [ 'GET' ],
               description: "Returns status of client GETs.",
             },
-            '/admin/api/control/PATH' => {
+            '/api/control/PATH' => {
               methods: [ 'GET', 'PUT', 'PATCH', 'DELETE' ],
               description: "GET, PUT, PATCH or DELETE the control for PATH.",
             },
