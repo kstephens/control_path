@@ -63,7 +63,15 @@ module ControlPath::Service
           get PATH_RX do
             control = store.fetch_control!(path)
             begin
-              status = { time: now, client_ip: request.ip.to_s, path: path }
+              seen_version = params[:version]
+              status = {
+                time: now,
+                client_ip: request.ip.to_s,
+                path: path,
+                seen_version: seen_version,
+                is_current: control[:version] == seen_version,
+                params: clean_params,
+              }
               store.save_status!(path, status)
             rescue => exc
               logger.error exc
@@ -82,7 +90,7 @@ module ControlPath::Service
 
         namespace '/control' do
           get PATH_RX do
-            if control = get_control!(path)
+            if control = store.get_control!(path)
               json_body(control)
             else
               404
@@ -133,6 +141,15 @@ module ControlPath::Service
           [ 200, { 'Content-Type' => 'application/json' }, [ content.to_s ] ]
         end
 
+        def clean_params params = self.params
+          h = { }
+          params.each do | k, v |
+            h[k.to_sym] = v
+          end
+          h.delete(:splat)
+          h.delete(:captures)
+          h
+        end
       end
     end
   end

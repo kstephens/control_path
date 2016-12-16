@@ -1,5 +1,6 @@
 require 'net/http'
 require 'uri'
+require 'control_path/json'
 
 module ControlPath
   class Http
@@ -15,6 +16,7 @@ module ControlPath
     end
 
     class Response
+      include Json
       attr_reader :response, :at, :uri
 
       def initialize response, uri
@@ -30,6 +32,10 @@ module ControlPath
       end
       def body
         @response.body
+      end
+      def body_data
+        @body_data ||= from_json(body)
+        rescue
       end
     end
   end

@@ -45,6 +45,9 @@ module ControlPath::Client
 
     def check!
       uri = uri_for config
+      if response_prev && response_prev.body_data
+        uri.query = "version=#{response_prev.body_data[:version]}"
+      end
       begin
         http.GET(uri) do | response |
           if response.success?
@@ -72,7 +75,7 @@ module ControlPath::Client
     end
 
     def uri_for config = self.config
-      expand_template(uri, config)
+      URI.parse(expand_template(uri, config))
     end
 
     def sleep!

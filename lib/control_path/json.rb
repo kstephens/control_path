@@ -7,8 +7,8 @@ module ControlPath
       MultiJson.dump(data, pretty: true)
     end
 
-    def from_json data
-      MultiJson.load(data, symbolize_keys: true)
+    def from_json content
+      MultiJson.load(content, symbolize_keys: true)
     end
   end
 end
