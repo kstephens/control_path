@@ -26,7 +26,7 @@ module ControlPath
         @response.code.to_i
       end
       def success?
-        (200..300).include?(status)
+        (200...300).include?(status)
       end
       def body
         @response.body
