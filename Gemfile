@@ -4,7 +4,6 @@ source 'http://rubygems.org'
 gem "rack",             "~> 1.5"
 gem "sinatra",          "~> 1.4"
 gem "sinatra-contrib",  "~> 1.4"
-gem "haml",             "~> 4.0"
 
 # Internals:
 gem 'uuid', '~> 2.3.8'
