@@ -95,14 +95,10 @@ module ControlPath::Service
         seen_current_version: control_version.to_s == seen_version.to_s,
         params: params,
       }
-      save_status!(path, status)
-    end
-
-    def save_status! path, data
       store.write!(path, STATUS, data)
     end
 
-    # Implementation
+    # Implementation:
 
     def merged_controls path
       files = store.parents(path, CONTROL)
