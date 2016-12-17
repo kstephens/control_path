@@ -19,7 +19,7 @@ module ControlPath::Service
     STATUS  = 'status.json'.freeze
 
     def fetch_status! path
-      files = store.files_in_children(path, STATUS)
+      files = store.children(path, STATUS)
       files.map do | file |
         merged, controls = merged_controls(file[:path])
         { path: file[:path],
@@ -105,7 +105,7 @@ module ControlPath::Service
     # Implementation
 
     def merged_controls path
-      files = store.files_in_parents(path, CONTROL)
+      files = store.parents(path, CONTROL)
       files.reverse!
       merged = { }
       controls = [ ]

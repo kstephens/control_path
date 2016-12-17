@@ -30,7 +30,7 @@ module ControlPath::Service
       file_system.unlink("#{dir}/#{path}/#{name}")
     end
 
-    def files_in_parents path, name
+    def parents path, name
       dirs = path_parents(path)
       dirs.map do | path |
         { file: "#{dir}/#{path}/#{name}",
@@ -49,7 +49,7 @@ module ControlPath::Service
       paths
     end
 
-    def files_in_children path, name
+    def children path, name
       rx = %r{\A#{Regexp.quote(dir)}/(.+?)/#{Regexp.quote(name)}\Z}
       Dir["#{dir}/#{path}/**/#{name}"].sort.map do | file |
         if m = rx.match(file)
