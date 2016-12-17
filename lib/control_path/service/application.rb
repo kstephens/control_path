@@ -61,6 +61,13 @@ module ControlPath::Service
         end
       end
 
+      namespace '/client-' do
+        get PATH_RX do
+          control = store.fetch_control!(path)
+          json_body control
+        end
+      end
+
       namespace '/status' do
         get PATH_RX do
           status = store.fetch_status!(path)
