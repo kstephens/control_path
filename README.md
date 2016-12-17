@@ -3,10 +3,17 @@
 Idea
 ====
 
-* Clients will HTTP GET /controlpath/api/client/#{env}/#{app}/#{host}/#{instance}.
-* For each HTTP GET, save /controlpath/api/status/#{env}/#{app}/#{host}/#{instance} with some data about the client (e.g: time of request, ip address, hostname, ...).
-* If /controlpath/api/control/#{env}/#{app}/#{host}/#{instance} does not exist, it is created with a blank file.
-* On HTTP POST /controlpath/api/control//..., we create a control entry.
+* On HTTP POST /api/control/PATH, create a control data object associated with PATH.
+* On HTTP GET /api/control/PATH, return the control data object associated with PATH.
+* On HTTP GET /api/client/PATH
+** Return a control data object merged from all found controls from top of PATH.
+** Save /api/status/PATH with data about the client's request. (e.g: time of request, ip address, hostname, ...).
+* On HTTP GET /api/client/PATH
+** Return the status(es) under PATH.
+
+The PATH provides a heirarchy that allows inherited behavior to be visible.
+
+A typical PATH might look something like /#{env}/#{application}/#{instance} or /#{env}/#{host}.
 
 Example
 =======
@@ -21,7 +28,13 @@ Example
 ```
 
 ```
- $ curl -X PUT -d '{"status":"restart"}' http://localhost:9090/api/control/foo
+ $ curl -X PUT -d '{"status":"foo"}' http://localhost:9090/api/control/foo
+```
 
+```
+ $ curl -X PUT -d '{"status":"foo-bar"}' http://localhost:9090/api/control/foo
+```
+
+```
  $ curl -X DELETE http://localhost:9090/api/control/foo
 ```

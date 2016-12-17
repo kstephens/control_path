@@ -3,6 +3,8 @@ require 'control_path/json'
 require 'fileutils'
 require 'time'
 require 'uuid'
+require 'awesome_print'
+require 'digest/sha1'
 
 module ControlPath::Service
   class Store
@@ -15,43 +17,53 @@ module ControlPath::Service
     end
 
     def fetch_status! path
-      files = locate_files(client_dir, "#{path}/status.json")
-      result =
-        files.map do | file |
+      files = files_in_children(client_dir, path, "status.json")
+      files.map do | file |
+        merged, controls = merged_controls(file[:path])
         { path: file[:path],
           status: read_file(file[:file]),
-          control: read_control(file[:path]),
+          control: merged,
+          controls: controls,
         }
       end
     end
 
     def get_control! path
       begin
-        json_body(file_system.read(control_file(path)), :raw)
+        read_control(path)
       rescue => exc
         nil
       end
     end
 
     def fetch_control! path
-      control = { status: 'UNDEFINED', path: path }
+      result = { status: 'UNDEFINED', path: path }
       begin
-        control = control.merge(read_control(path))
+        merged, controls = merged_controls(path)
+        result = result.merge(control: merged)
+        result[:status] = 'OK'
       rescue => exc
         logger.error exc
-        control[:status] = 'API-ERROR'
+        result[:status] = 'API-ERROR'
       end
-      control
+      result
     end
 
     def put_control! path, data
-      control = control_header.merge(data).merge(control_footer)
+      control =
+        control_header.
+        merge(data).
+        merge(control_footer)
       write_file(control_file(path), control)
       control
     end
 
     def patch_control! path, data
-      control = control_header.merge(read_control(path)).merge(data).merge(control_footer)
+      control =
+        control_header.
+        merge(read_file(control_file(path))).
+        merge(data).
+        merge(control_footer)
       write_file(control_file(path), control)
       control
     end
@@ -70,7 +82,7 @@ module ControlPath::Service
 
     def update_status! path, control, request, params
       seen_version = params[:version]
-      seen_current_version = control[:version].to_s == seen_version.to_s
+      seen_current_version = control[:control][:version].to_s == seen_version.to_s
       status = {
         time: format_time(now),
         client_ip: request.ip.to_s,
@@ -83,6 +95,10 @@ module ControlPath::Service
     end
 
     # Implementation
+
+    def read_control path
+      file_system.read(control_file(path))
+    end
 
     def save_status! path, data
       write_file(status_file(path), data)
@@ -109,48 +125,52 @@ module ControlPath::Service
     end
 
     def control_footer
-      { time: format_time(now), version: new_uuid }
+      { time: format_time(now), version: new_version }
     end
 
-    def read_control path
-      data = { status: 'UNDEFINED' }
-      control = { status: 'UNDEFINED', path: path }
-      begin
-        if control_file = locate_file(client_dir, "#{path}/control.json")
-          data = read_file(control_file[:file])
-          control = { path: control_file[:path] }
-        else
-          control = { status: 'NOT-FOUND', path: path }
-        end
-      rescue => exc
-        logger.error exc
-        data[:status] = control[:status] = 'API-ERROR'
+    def merged_controls path
+      files = files_in_parents(client_dir, path, "control.json")
+      files.reverse!
+      merged = { }
+      controls = [ ]
+      files.each do | file |
+        data = read_file(file[:file])
+        merged_version =
+          merged[:version] ?
+          digest("#{merged[:version]}|#{data[:version]}") :
+          data[:version]
+        merged.update(data)
+        merged[:version] = merged_version
+        controls << {
+          path: file[:path],
+          time: data[:time],
+          version: data[:version],
+        }
       end
-      data = data.merge(path: path, control: control)
-      # pp(read_control: { path: path, data: data })
-      data
+      [ merged, controls ]
     end
 
-    def locate_file base, path
-      dir = File.dirname(path)
-      name = File.basename(path)
-      dirs = [ ]
-      while dir != '.'
-        dirs.push dir
-        dir = File.dirname(dir)
-      end
+    def files_in_parents base, path, name
+      dirs = path_parents(path)
       dirs.map do | dir |
         { file: "#{base}/#{dir}/#{name}",
           path: dir,
           name: name,
         }
-      end.find{|f| File.exist?(f[:file])}
+      end.select{|f| file_system.exist?(f[:file])}
     end
 
-    def locate_files base, name
-      dir = File.dirname(name)
-      name = File.basename(name)
-      Dir["#{base}/#{dir}/**/#{name}"].sort.map do | file |
+    def path_parents path
+      paths = [ ]
+      while path != '.'
+        paths.push path
+        path = File.dirname(path)
+      end
+      paths
+    end
+
+    def files_in_children base, path, name
+      Dir["#{base}/#{path}/**/#{name}"].sort.map do | file |
         rx = %r{\A#{Regexp.quote(base)}/(.+?)/#{Regexp.quote(name)}\Z}
         if m = rx.match(file)
           { file: file,
@@ -176,6 +196,14 @@ module ControlPath::Service
       ensure
         file_system.unlink(tmp) rescue nil
       end
+    end
+
+    def new_version
+      digest(new_uuid)
+    end
+
+    def digest str
+      Digest::SHA1.hexdigest(str)
     end
 
     def new_uuid

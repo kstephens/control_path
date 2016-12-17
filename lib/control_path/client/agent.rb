@@ -46,7 +46,7 @@ module ControlPath::Client
     def check!
       uri = uri_for config
       if response_prev && response_prev.body_data
-        uri.query = "version=#{response_prev.body_data[:version]}"
+        uri.query = "version=#{response_prev.body_data[:control][:version]}"
       end
       begin
         http.GET(uri) do | response |
