@@ -45,8 +45,8 @@ module ControlPath::Client
 
     def check!
       uri = uri_for config
-      if response_prev && response_prev.body_data
-        uri.query = "version=#{response_prev.body_data[:control][:version]}"
+      if response_prev and x = response_prev.body_data and x = x[:control]
+        uri.query = "version=#{x[:version]}"
       end
       begin
         http.GET(uri) do | response |
@@ -72,7 +72,7 @@ module ControlPath::Client
 
     def changed! response
       logger.info "changed! #{response.uri}"
-      on_change[self, response]
+      on_change.call(self, response)
     end
 
     def uri_for config = self.config
