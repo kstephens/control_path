@@ -95,6 +95,29 @@ module ControlPath::Service
     end
 
     # Implementation
+    def now
+      Time.now.utc
+    end
+
+    def new_version
+      digest(new_uuid)
+    end
+
+    def digest str
+      Digest::SHA1.hexdigest(str)
+    end
+
+    def new_uuid
+      UUID.new.generate
+    end
+
+    def format_time time
+      time.getutc.iso8601(3)
+    end
+
+    def logger
+      @logger ||= ::Logger.new($stderr)
+    end
 
     def read_control path
       file_system.read(control_file(path))
@@ -102,10 +125,6 @@ module ControlPath::Service
 
     def save_status! path, data
       write_file(status_file(path), data)
-    end
-
-    def now
-      Time.now.utc
     end
 
     def client_dir
@@ -198,25 +217,6 @@ module ControlPath::Service
       end
     end
 
-    def new_version
-      digest(new_uuid)
-    end
-
-    def digest str
-      Digest::SHA1.hexdigest(str)
-    end
-
-    def new_uuid
-      UUID.new.generate
-    end
-
-    def format_time time
-      time.getutc.iso8601(3)
-    end
-
-    def logger
-      @logger ||= ::Logger.new($stderr)
-    end
   end
 end
 
