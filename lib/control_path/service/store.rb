@@ -7,10 +7,11 @@ require 'uuid'
 module ControlPath::Service
   class Store
     include ControlPath::Json
-    attr_accessor :dir, :logger
+    attr_accessor :dir, :file_system, :logger
 
     def initialize opts
       @dir = opts[:dir] or raise ArgumentError
+      @file_system = opts[:file_system] || ::File
     end
 
     def fetch_status! path
@@ -26,7 +27,7 @@ module ControlPath::Service
 
     def get_control! path
       begin
-        json_body(File.read(control_file(path)), :raw)
+        json_body(file_system.read(control_file(path)), :raw)
       rescue => exc
         nil
       end
@@ -58,8 +59,8 @@ module ControlPath::Service
     def delete_control! path
       file = control_file(path)
       begin
-        control = from_json(File.read(file))
-        File.unlink(control_file(path))
+        control = from_json(file_system.read(file))
+        file_system.unlink(control_file(path))
         control
       rescue => exc
         logger.error exc
@@ -161,19 +162,19 @@ module ControlPath::Service
     end
 
     def read_file file
-      from_json(File.read(file))
+      from_json(file_system.read(file))
     end
 
     def write_file file, data
       content = to_json(data)
       begin
         tmp = "#{file}.#{$$}"
-        FileUtils.mkdir_p(File.dirname(tmp))
-        File.write(tmp, content)
-        File.chmod(0644, tmp)
-        File.rename(tmp, file)
+        file_system.mkdir_p(File.dirname(tmp))
+        file_system.write(tmp, content)
+        file_system.chmod(0644, tmp)
+        file_system.rename(tmp, file)
       ensure
-        File.unlink(tmp) rescue nil
+        file_system.unlink(tmp) rescue nil
       end
     end
 
@@ -188,5 +189,11 @@ module ControlPath::Service
     def logger
       @logger ||= ::Logger.new($stderr)
     end
+  end
+end
+
+class File
+  def self.mkdir_p *args
+    FileUtils.mkdir_p *args
   end
 end
