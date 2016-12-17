@@ -95,7 +95,7 @@ module ControlPath::Service
         seen_current_version: control_version.to_s == seen_version.to_s,
         params: params,
       }
-      store.write!(path, STATUS, data)
+      store.write!(path, STATUS, status)
     end
 
     # Implementation:
