@@ -30,12 +30,6 @@ module ControlPath::Service
       file_system.unlink("#{dir}/#{path}/#{name}")
     end
 
-    # Implementation:
-
-    def logger
-      @logger ||= ::Logger.new($stderr)
-    end
-
     def files_in_parents path, name
       dirs = path_parents(path)
       dirs.map do | path |
@@ -65,6 +59,12 @@ module ControlPath::Service
           }
         end
       end.compact
+    end
+
+    # Implementation:
+
+    def logger
+      @logger ||= ::Logger.new($stderr)
     end
 
     def read_file file
