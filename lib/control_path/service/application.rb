@@ -15,14 +15,15 @@ module ControlPath::Service
     set :root           , ROOT_DIR
     set :public_folder  , PUBLIC_DIR
     set :tmp_folder     , "#{ROOT_DIR}/tmp"
-    set :static         , true
-    set :reload_templates , false
-    #set :sessions       , true
-    #set :session_secret , '12341234' # FIXME
+    # Workaround: NoMethodError at undefined method `clear' for nil:NilClass
+    set :reload_templates, false
 
     def initialize opts = { }
       @logger = opts[:logger] || ::Logger.new($stderr)
-      @store  = opts[:store] || ControlPath::Service::Store.new(dir: "#{PUBLIC_DIR}/data", logger: logger)
+      @store  = opts[:store] ||
+        ControlPath::Service::Store.
+        new(dir: "public/data",
+            logger: logger)
     end
     attr_accessor :store, :logger
 
