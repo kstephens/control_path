@@ -3,4 +3,5 @@ module ControlPath
   module Service
   end
 end
+require 'control_path/service/controller'
 require 'control_path/service/store'

@@ -22,10 +22,14 @@ module ControlPath::Service
       @logger = opts[:logger] || ::Logger.new($stderr)
       @store  = opts[:store] ||
         ControlPath::Service::Store.
-        new(dir: "public/data",
+        new(dir: "public/data/client",
+            logger: logger)
+      @controller = opts[:controller] ||
+        ControlPath::Service::Controller.
+        new(store: @store,
             logger: logger)
     end
-    attr_accessor :store, :logger
+    attr_accessor :controller, :logger
 
     PATH_RX = %r{^/(.+?)/?}
 
@@ -50,9 +54,9 @@ module ControlPath::Service
 
       namespace '/client' do
         get PATH_RX do
-          control = store.fetch_control!(path)
+          control = controller.fetch_control!(path)
           begin
-            store.update_status!(path, control, request, clean_params)
+            controller.update_status!(path, control, request, clean_params)
           rescue => exc
             logger.error exc
             control[:status] = 'API-ERROR'
@@ -63,36 +67,36 @@ module ControlPath::Service
 
       namespace '/client-' do
         get PATH_RX do
-          control = store.fetch_control!(path)
+          control = controller.fetch_control!(path)
           json_body control
         end
       end
 
       namespace '/status' do
         get PATH_RX do
-          status = store.fetch_status!(path)
+          status = controller.fetch_status!(path)
           json_body(server_metadata.merge(status: status))
         end
       end
 
       namespace '/control' do
         get PATH_RX do
-          if control = store.get_control!(path)
+          if control = controller.get_control!(path)
             json_body(control)
           else
             404
           end
         end
         put PATH_RX do
-          control = store.put_control!(path, from_json(request.body))
+          control = controller.put_control!(path, from_json(request.body))
           json_body control
         end
         patch PATH_RX do
-          control = store.patch_control!(path, from_json(request.body))
+          control = controller.patch_control!(path, from_json(request.body))
           json_body control
         end
         delete PATH_RX do
-          if control = store.delete_control!(path)
+          if control = controller.delete_control!(path)
             json_body(control)
           else
             404
@@ -120,7 +124,7 @@ module ControlPath::Service
         end
 
         def format_time time
-          store.format_time(time)
+          controller.format_time(time)
         end
 
         def json_body data, raw = false
