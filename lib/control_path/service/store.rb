@@ -19,11 +19,11 @@ module ControlPath::Service
 
     # Interface:
     def read path, name
-      read_file("#{dir}/#{path}/#{name}")
+      read_data("#{dir}/#{path}/#{name}")
     end
 
     def write! path, name, data
-      write_file("#{dir}/#{path}/#{name}", data)
+      write_data("#{dir}/#{path}/#{name}", data)
     end
 
     def delete! path, name
@@ -67,11 +67,11 @@ module ControlPath::Service
       @logger ||= ::Logger.new($stderr)
     end
 
-    def read_file file
+    def read_data file
       from_json(file_system.read(file))
     end
 
-    def write_file file, data
+    def write_data file, data
       content = to_json(data)
       begin
         tmp = "#{file}.#{$$}"
