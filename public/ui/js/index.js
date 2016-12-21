@@ -123,6 +123,7 @@ var StatusBox = React.createClass({
       dataType: 'json',
       cache: false,
       success: function(data) {
+        data.now_date = Date.parse(data.now);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -131,7 +132,7 @@ var StatusBox = React.createClass({
     });
   },
   getInitialState: function() {
-    return { data: { status: [ ]} };
+    return { data: { now_date: new Date(), status: [ ]} };
   },
   componentDidMount: function() {
     this.loadStatussFromServer();
@@ -139,7 +140,6 @@ var StatusBox = React.createClass({
   },
   render: function() {
     var data = this.state.data;
-    data.now_date = Date.parse(data.now);
     return (
       <div className="statusBox">
         <h1>Status {data.path}</h1>
