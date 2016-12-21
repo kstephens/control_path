@@ -23,7 +23,7 @@ var Control = React.createClass({
         <KeyVal k={"path"}    v={data.path} v_class="path" />
         <KeyVal k={"version"} v={data.version} v_class={version_class} />
         <KeyVal k={"time"}    v={data.time} />
-        <div><pre className="code">{JSON.stringify(data, null, 2)}</pre></div>
+        <div><pre className="code">{JSON.stringify(data.data, null, 2)}</pre></div>
       </span>
     );
   }

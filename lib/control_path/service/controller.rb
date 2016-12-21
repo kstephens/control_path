@@ -58,7 +58,7 @@ module ControlPath::Service
     def put_control! path, data
       control =
         control_header.
-        merge(data).
+        merge(data: data).
         merge(control_footer)
       store.write!(path, CONTROL, control)
       control
@@ -68,7 +68,7 @@ module ControlPath::Service
       control =
         control_header.
         merge(store.read(path, CONTROL)).
-        merge(data).
+        merge(data: data).
         merge(control_footer)
       store.write!(path, CONTROL, control)
       control
