@@ -31,9 +31,46 @@ module ControlPath::Service
     end
     attr_accessor :controller, :logger
 
-    PATH_RX = %r{^/(.+?)/?}
+    PATH_RX = %r{^(/.*?)/?}
+
+    namespace '/' do
+      get '/?' do
+        [ 304, { 'Location' => '/ui' } ]
+      end
+    end
+
+    namespace '/ui' do
+      get '/?' do
+        [ 200,
+          { 'Content-Type' => 'text/html' },
+          [ File.read("public/ui/index.html") ]
+        ]
+      end
+      get %r{^/(.+?\.html)$} do
+        [ 200,
+          { 'Content-Type' => 'text/html' },
+          [ File.read("public/ui/#{path}") ]
+        ]
+      end
+      get %r{^/(.+?\.js)$} do
+        [ 200,
+          { 'Content-Type' => 'application/javascript' },
+          [ File.read("public/ui/#{path}") ]
+        ]
+      end
+    end
 
     namespace '/api' do
+      error 400..600 do
+        data = {
+          status: response.status,
+          error: "Error #{response.status}",
+        }
+        content_type 'application/json'
+        response.body = [ Json.to_json(data) ]
+        logger.error data.inspect
+      end
+
       get '/?' do
         endpoints = {
           '/api/client/PATH' => {
@@ -75,7 +112,7 @@ module ControlPath::Service
       namespace '/status' do
         get PATH_RX do
           status = controller.fetch_status!(path)
-          json_body(server_metadata.merge(status: status))
+          json_body(server_metadata.merge(path: path, status: status))
         end
       end
 
@@ -120,7 +157,7 @@ module ControlPath::Service
         end
 
         def path
-          @path ||= params['captures'].first.gsub(%r{/+}, '/').freeze
+          @path ||= params[:captures].first.gsub(%r{/+}, '/').freeze
         end
 
         def format_time time

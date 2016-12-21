@@ -10,5 +10,7 @@ module ControlPath
     def from_json content
       MultiJson.load(content, symbolize_keys: true)
     end
+
+    extend self
   end
 end

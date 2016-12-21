@@ -1,0 +1,88 @@
+body {
+  background: #000;
+  color: #ccc;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+  padding: 1em;
+}
+
+a {
+  text-decoration: none;
+  color: #ccc;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/*****************************/
+
+code {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  font-size: 12px;
+  margin: 0 2px;
+  padding: 0 5px;
+}
+
+/*****************************/
+
+span.responsive {
+}
+
+span.unresponsive {
+  color: #F42 !important;
+}
+
+/*****************************/
+
+span.current_version {
+  color: #2F2 !important;
+}
+
+span.not_current_version {
+  color: #FF2 !important;
+}
+
+/*****************************/
+
+span.key_val {
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+span.k {
+  color: #888;
+}
+
+/*****************************/
+
+a.display_on_hover {
+  text-decoration: none;
+}
+
+a.display_on_hover:hover span {
+  display: initial;
+}
+
+span.display_on_hover {
+  display: none;
+}
+
+/*****************************/
+
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+
+/*****************************/
