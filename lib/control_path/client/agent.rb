@@ -46,7 +46,7 @@ module ControlPath::Client
     def check!
       uri = uri_for config
       if response_prev and x = response_prev.body_data and x = x[:control]
-        uri.query = "version=#{x[:version]}"
+        uri.query = "version=#{x[:version]}&interval=#{max_interval(interval)}"
       end
       begin
         http.GET(uri) do | response |
@@ -64,10 +64,10 @@ module ControlPath::Client
       end
     end
 
-    def changed? repsonse, response_prev
-      response && response.success? &&
-        response_prev && response_prev.success? &&
-        response.body != response_prev.body
+    def changed? a, b
+      a && a.success? && \
+      b && b.success? && \
+      a.body != b.body
     end
 
     def changed! response
@@ -88,6 +88,15 @@ module ControlPath::Client
       template.to_s.gsub(/#\{\s*([^\s\}]+)\s*}/) do | m |
         k = $1.to_sym
         data[k]
+      end
+    end
+
+    def max_interval interval
+      case interval
+      when Range
+        interval.last
+      when Numeric
+        interval
       end
     end
 

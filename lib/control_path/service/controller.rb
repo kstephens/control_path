@@ -21,10 +21,14 @@ module ControlPath::Service
     def fetch_status! path
       files = store.children(path, STATUS)
       files.map do | file |
-        merged, controls = merged_controls(file[:path])
+        control, controls = merged_controls(file[:path])
+        status = store.read(file[:path], STATUS)
+        control_version = control && control[:version]
+        seen_version = status[:seen_version]
+        status = status.merge(seen_current_version: control_version.to_s == seen_version.to_s)
         { path: file[:path],
-          status: store.read(file[:path], STATUS),
-          control: merged,
+          status: status,
+          control: control,
           controls: controls,
         }
       end
@@ -83,16 +87,14 @@ module ControlPath::Service
 
     def update_status! path, control, request, params
       seen_version = params[:version]
-      control_version =
-        control &&
-        (x = control[:control]) &&
-        x[:version]
+      interval = params[:interval]
       status = {
         time: format_time(now),
         client_ip: request.ip.to_s,
         path: path,
         seen_version: seen_version,
-        seen_current_version: control_version.to_s == seen_version.to_s,
+        seen_current_version: nil,
+        interval: interval && interval.to_f,
         params: params,
       }
       store.write!(path, STATUS, status)
