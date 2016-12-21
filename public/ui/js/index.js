@@ -19,11 +19,12 @@ var Control = React.createClass({
     var data = this.props.data;
     var version_class = this.props.version_class;
     return (
-      <div className="control">
-        <KeyVal k={"path"}    v={data.path} />
+      <span className="control">
+        <KeyVal k={"path"}    v={data.path} v_class="path" />
+        <KeyVal k={"version"} v={data.version} v_class={version_class} />
         <KeyVal k={"time"}    v={data.time} />
-        <KeyVal k={"version"} v={data.version} v_class={version_class}/>
-      </div>
+        <div><pre className="code">{JSON.stringify(data, null, 2)}</pre></div>
+      </span>
     );
   }
 });
@@ -37,7 +38,9 @@ var Status = React.createClass({
     var control = data.control;
     var controls = data.controls.map(function(item) {
        return (
+       <div key={item.path}>
          <Control top_level={top_level} data={item} key={item.path} />
+       </div>
        );
     })
     var seen_current_version = status.seen_version && status.seen_current_version === true;
@@ -64,18 +67,30 @@ var Status = React.createClass({
 
     return (
       <div className="status">
-        <hr />
-        <KeyVal k={"path"} v={data.path} />
-        <KeyVal k={"client_ip"} v={status.client_ip} />
+        <KeyVal k={"path"} v={data.path} v_class={"path"} />
+        <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
         <KeyVal k={status.time} v={diff_time_str(now, status_time)} v_class={status_age_class} />
-        <KeyVal k={"status_interval"} v={status_interval && ("< " + status_interval + " sec")} />
-        <KeyVal k={"version"} v={status.seen_version || '???'} v_class={version_class} />
-        <KeyVal k={"version_age"} v={version_age} v_class={version_class}/>
+        <KeyVal k={"status_interval"} v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
         <div>
-          <Control top_level={top_level} data={control} version_class={version_class} />
-          <div>
-            <div className="status-controls">{controls}</div>
-          </div>
+          <table>
+          <tbody>
+            <tr>
+              <td>Status:</td>
+              <td><span>
+                <KeyVal k={"version"} v={status.seen_version || '???'} v_class={version_class} />
+                <KeyVal k={"version_age"} v={version_age} v_class={version_class}/>
+              </span></td>
+            </tr>
+            <tr>
+              <td>Control:</td>
+              <td><Control top_level={top_level} data={control} version_class={version_class} /></td>
+            </tr>
+            <tr>
+              <td />
+              <td><div className="status-controls">{controls}</div></td>
+            </tr>
+          </tbody>
+          </table>
         </div>
       </div>
     );
@@ -87,7 +102,10 @@ var StatusList = React.createClass({
     var top_level = this.props.top_level;
     var statuses = this.props.data.map(function(item) {
       return (
-        <Status top_level={top_level} data={item} key={item.path}/>
+        <div key={item.path}>
+          <hr />
+          <Status top_level={top_level} data={item} key={item.path}/>
+        </div>
       );
     });
     return (
@@ -126,7 +144,7 @@ var StatusBox = React.createClass({
       <div className="statusBox">
         <h1>Status {data.path}</h1>
         <div>
-          <KeyVal k={"path"} v={data.path} /> 
+          <KeyVal k={"path"} v={data.path} v_class="path" />
           <KeyVal k={"host"} v={data.host} /> 
           <KeyVal k={"now"}  v={data.now} />
         </div>
@@ -139,6 +157,6 @@ var StatusBox = React.createClass({
 });
 
 ReactDOM.render(
-  <StatusBox url="/api/status/" pollInterval={2000} />,
+  <StatusBox url="/api/status/" pollInterval={5000} />,
   document.getElementById('content')
 );

@@ -3,9 +3,11 @@ body {
   color: #ccc;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 15px;
-  line-height: 1.7;
   margin: 0;
   padding: 1em;
+}
+
+div {
 }
 
 a {
@@ -17,16 +19,29 @@ a:hover {
   text-decoration: none;
 }
 
+table > tbody > tr {
+  vertical-align: top;
+}
+
 /*****************************/
 
 code {
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  background-color: #111;
   font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
-  font-size: 12px;
-  margin: 0 2px;
-  padding: 0 5px;
+  font-size: 0.8em;
+}
+
+pre.code {
+  background-color: #111;
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  font-size: 0.8em;
+  margin: 0;
+}
+
+/*****************************/
+span.path {
+    font-weight: bolder;
+    color: #ddd;
 }
 
 /*****************************/
