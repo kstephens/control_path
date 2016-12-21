@@ -88,12 +88,14 @@ module ControlPath::Service
     def update_status! path, control, request, params
       seen_version = params[:version]
       interval = params[:interval]
+      host = params[:host]
       status = {
         time: format_time(now),
         client_ip: request.ip.to_s,
         path: path,
         seen_version: seen_version,
         seen_current_version: nil,
+        host: host,
         interval: interval && interval.to_f,
         params: params,
       }

@@ -9,8 +9,9 @@ module ControlPath::Client
 
     attr_accessor :state, :action
     attr_accessor :response, :response_prev
-
+    attr_accessor :host
     def initialize opts = nil, &blk
+      self.host = Socket.gethostname
       opts.each do | k, v |
         self.send(:"#{k}=", v)
       end if opts
@@ -45,9 +46,15 @@ module ControlPath::Client
 
     def check!
       uri = uri_for config
+
+      query = { }
       if response_prev and x = response_prev.body_data and x = x[:control]
-        uri.query = "version=#{x[:version]}&interval=#{max_interval(interval)}"
+        query[:version] = x[:version]
       end
+      query[:host] = host
+      query[:interval] = max_interval(interval)
+      uri.query = query.map{|k, v| "#{k}=#{v}"} * '&'
+
       begin
         http.GET(uri) do | response |
           if response.success?
