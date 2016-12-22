@@ -67,8 +67,13 @@ module ControlPath::Service
     def patch_control! path, data
       control =
         control_header.
-        merge(store.read(path, CONTROL)).
-        merge(data: data).
+        merge(store.read(path, CONTROL))
+      merged_data =
+        (control[:data] || {}).
+        merge(data || {})
+      control =
+        control.
+        merge(data: merged_data).
         merge(control_footer)
       store.write!(path, CONTROL, control)
       control
@@ -130,9 +135,13 @@ module ControlPath::Service
         merged[:time].to_s > data[:time].to_s ?
         merged[:time] :
         data[:time]
+      merged_data =
+        (merged[:data] || { }).
+        merge(data[:data] || { })
       merged.update(data)
       merged[:version] = merged_version
       merged[:time]    = merged_time
+      merged[:data]    = merged_data
       merged
     end
 
