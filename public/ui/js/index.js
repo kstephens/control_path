@@ -1,3 +1,35 @@
+var diff_time = function(a, b) {
+  return a && b && ((a - b) / 1000);
+};
+var diff_time_str = function(dt) {
+  if ( ! dt ) return dt;
+  var dta = dt < 0 ? - dt : dt;
+  if ( dta < 90 )
+    return "" + (dt).toFixed(2) + " sec";
+  if ( dta < 3 * 60 * 60)
+    return "" + (dt / 60).toFixed(2) + " min";
+  if ( dta < 3 * 24 * 60 * 60 )
+    return "" + (dt / (60 * 60)).toFixed(2) + " hr";
+  return "" + (dt / (24 * 60 * 60)).tofixed(2) + " day";
+};
+
+var FlashOnChange = React.createClass({
+  componentDidUpdate: function(props, state) {
+    if (this.props.content !== props.content) {
+      var flash_class   = this.props.flash_class   || "flash";
+      var flash_timeout = this.props.flash_timeout || 1000;
+      var elem = this.refs.elem;
+      elem.classList.add(flash_class);
+      setTimeout(function() {
+        elem.classList.remove(flash_class);
+      }, flash_timeout);
+    }
+  },
+  render: function() {
+    return <span ref="elem">{this.props.content}</span>
+  }
+});
+
 var KeyVal = React.createClass({
   render: function() {
     return (

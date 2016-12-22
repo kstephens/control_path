@@ -22,23 +22,21 @@ a:hover {
 table > tbody > tr {
   vertical-align: top;
 }
+table > tbody > tr > td {
+  align: left;
+}
 
 /*****************************/
-
-code {
-  background-color: #111;
-  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
-  font-size: 0.8em;
-}
 
 pre.code {
-  background-color: #111;
+  background-color: #222;
   font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
   font-size: 0.8em;
-  margin: 0;
+  padding: 0.1em;
 }
 
 /*****************************/
+
 span.path {
     font-weight: bolder;
     color: #ddd;
@@ -47,6 +45,7 @@ span.path {
 /*****************************/
 
 span.responsive {
+  color: #2F2 !important;
 }
 
 span.unresponsive {
@@ -71,8 +70,16 @@ span.key_val {
 }
 
 span.k {
-  color: #888;
+  opacity: 0.75;
 }
+
+/*****************************/
+
+span.flash {
+  background: #888 !important;
+  transition: background 500ms ease-in;
+}
+
 
 /*****************************/
 
@@ -90,6 +97,9 @@ span.display_on_hover {
 
 /*****************************/
 
+.dim {
+  opacity: 0.5;
+}
 .left {
   text-align: left;
 }
