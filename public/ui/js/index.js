@@ -78,17 +78,9 @@ var Status = React.createClass({
     var seen_current_version = status.seen_version && status.seen_current_version === true;
     var version_class = seen_current_version ? "current_version" : "not_current_version";
 
-    var diff_time = function(a, b) {
-      return a && b && ((a - b) / 1000);
-    };
-    var diff_time_str = function(a, b) {
-      var dt = diff_time(a, b);
-      return dt && ("" + dt + " sec");
-    };
-   
     var control_time = Date.parse(control.time);
     var status_time  = Date.parse(status.time);
-    var version_age  = seen_current_version ? "" : diff_time_str(control_time, status_time);
+    var version_age  = seen_current_version ? "" : diff_time_str(diff_time(control_time, status_time));
 
     var status_interval = status.interval;
     var status_age = diff_time(now, status_time);
@@ -99,27 +91,34 @@ var Status = React.createClass({
 
     return (
       <div className="status">
-        <KeyVal k={"path"} v={data.path} v_class={"path"} />
-        <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
-        <KeyVal k={status.time} v={diff_time_str(now, status_time)} v_class={status_age_class} />
-        <KeyVal k={"status_interval"} v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
+        <div>
+          <KeyVal k={"path"} v={data.path} v_class={"path"} />
+          <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
+          <KeyVal k={status.time} v={diff_time_str(diff_time(now, status_time))} v_class={status_age_class} />
+          <KeyVal k={"status_interval"} v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
+        </div>
         <div>
           <table>
           <tbody>
             <tr>
-              <td>Status:</td>
-              <td><span>
-                <KeyVal k={"version"} v={status.seen_version || '???'} v_class={version_class} />
-                <KeyVal k={"version_age"} v={version_age} v_class={version_class}/>
-              </span></td>
+              <td><span className="dim">Status:</span></td>
+              <td><KeyVal k={"seen_version"} v={status.seen_version || '???'} v_class={version_class} /></td>
+              <td><KeyVal k={"version_age"} v={version_age} v_class={version_class}/></td>
             </tr>
             <tr>
-              <td>Control:</td>
-              <td><Control top_level={top_level} data={control} version_class={version_class} /></td>
+              <td><span className="dim">Control:</span></td>
+              <td><KeyVal k={"version"} v={control.version} v_class={version_class} /></td>
+              <td><KeyVal k={"time"}    v={control.time} /></td>
             </tr>
             <tr>
               <td />
-              <td><div className="status-controls">{controls}</div></td>
+              <td colSpan="2">
+                <pre className="code">{JSON.stringify(control.data, null, 2)}</pre>
+              </td>
+            </tr>
+            <tr>
+              <td />
+              <td colSpan="2"><div className="status-controls">{controls}</div></td>
             </tr>
           </tbody>
           </table>
