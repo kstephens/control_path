@@ -35,8 +35,8 @@ var KeyVal = React.createClass({
     return (
       <span className="key_val">
         <a href="#" className="display_on_hover">
-          <span className="v"><span className={this.props.v_class}>{this.props.v}</span></span>
-          <span className="display_on_hover"> : <span className="k">{this.props.k}</span>
+          <span className="v"><span className={this.props.v_class}><FlashOnChange content={this.props.v}>{this.props.v}</FlashOnChange></span></span>
+          <span className="display_on_hover"> : <span className="k"><FlashOnChange content={this.props.k}>{this.props.k}</FlashOnChange></span>
           </span>
         </a>
       </span>
@@ -74,7 +74,7 @@ var Status = React.createClass({
          <Control top_level={top_level} data={item} key={item.path} />
        </div>
        );
-    })
+    });
     var seen_current_version = status.seen_version && status.seen_current_version === true;
     var version_class = seen_current_version ? "current_version" : "not_current_version";
 
