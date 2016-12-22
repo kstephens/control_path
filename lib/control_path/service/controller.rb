@@ -69,8 +69,7 @@ module ControlPath::Service
         control_header.
         merge(store.read(path, CONTROL))
       merged_data =
-        (control[:data] || {}).
-        merge(data || {})
+        merge_data(control[:data], data)
       control =
         control.
         merge(data: merged_data).
@@ -135,15 +134,23 @@ module ControlPath::Service
         merged[:time].to_s > data[:time].to_s ?
         merged[:time] :
         data[:time]
-      merged_data =
-        (merged[:data] || { }).
-        merge(data[:data] || { })
+      merged_data = merge_data(merged[:data], data[:data])
       merged.update(data)
       merged[:version] = merged_version
       merged[:time]    = merged_time
       merged[:data]    = merged_data
       merged
     end
+
+    def merge_data a, b
+      result = (a || { }).
+        merge( (b || { }) )
+      result.dup.each do | k, v |
+        result.delete(k) if DELETE == v
+      end
+      result
+    end
+    DELETE = '__DELETE__'.freeze
 
     def control_header
       { time: "", version: "" }
