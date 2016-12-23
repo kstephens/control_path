@@ -13,10 +13,15 @@
   </head>
   <body>
     <div id="content"></div>
+
     <script type="text/babel" src="/ui/js/index.js"></script>
     <script type="text/babel">
-      // To get started with this tutorial running your own code, simply remove
-      // the script tag loading scripts/example.js and start writing code here.
+      var locals = <%= to_json(locals) %>;
+      var url = "/api/status" + locals["path"];
+      ControlPath({
+         url: url,
+         interval: 5000
+       });
     </script>
   </body>
 </html>

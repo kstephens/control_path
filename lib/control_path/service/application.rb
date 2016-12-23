@@ -1,9 +1,11 @@
 require 'control_path/service'
 require 'control_path/json'
-require 'sinatra'
-require 'sinatra/namespace'
-require 'logger'
+require 'erb'
 require 'yaml'
+require 'logger'
+require 'sinatra'
+require 'sinatra/base'
+require 'sinatra/namespace'
 
 module ControlPath::Service
   class Application < Sinatra::Base
@@ -15,12 +17,14 @@ module ControlPath::Service
 
     set :app_file       , __FILE__
     set :root           , ROOT_DIR
+    set :static         , true
     set :public_folder  , PUBLIC_DIR
     set :tmp_folder     , "#{ROOT_DIR}/tmp"
-    # Workaround: NoMethodError at undefined method `clear' for nil:NilClass
-    set :reload_templates, false
+    set :views          , "#{ROOT_DIR}/views"
+    set :reload_templates, true
 
     def initialize opts = { }
+      super()
       @logger = opts[:logger] || ::Logger.new($stderr)
       @store  = opts[:store] ||
         ControlPath::Service::Store.
@@ -36,29 +40,17 @@ module ControlPath::Service
     PATH_RX = %r{^(/.*?)/?}
 
     namespace '/' do
-      get '/?' do
-        [ 304, { 'Location' => '/ui' } ]
+      get '' do
+        [ 304, { 'Location' => '/ui/' } ]
+      end
+      get 'ui' do
+        [ 304, { 'Location' => '/ui/' } ]
       end
     end
 
     namespace '/ui' do
-      get '/?' do
-        [ 200,
-          { 'Content-Type' => 'text/html' },
-          [ File.read("public/ui/index.html") ]
-        ]
-      end
-      get %r{^/(.+?\.html)$} do
-        [ 200,
-          { 'Content-Type' => 'text/html' },
-          [ File.read("public/ui/#{path}") ]
-        ]
-      end
-      get %r{^/(.+?\.js)$} do
-        [ 200,
-          { 'Content-Type' => 'application/javascript' },
-          [ File.read("public/ui/#{path}") ]
-        ]
+      get PATH_RX do
+        erb :'ui', locals: locals
       end
     end
 
@@ -141,8 +133,6 @@ module ControlPath::Service
       end
 
       helpers do
-        include ControlPath::Json
-
         def update_status! action
           control = controller.fetch_control!(path)
           begin
@@ -165,54 +155,69 @@ module ControlPath::Service
           end
           json_body control
         end
+      end
+    end
 
-        def server_metadata
-          @server_metadata ||= {
-            api_name: api_name,
-            api_version: api_version,
-            now: format_time(now),
-            host: Socket.gethostname,
-            pid: $$,
-          }.freeze
+    helpers do
+      include ControlPath::Json
+
+      def server_metadata
+        @server_metadata ||= {
+          api_name: api_name,
+          api_version: api_version,
+          now: format_time(now),
+          host: Socket.gethostname,
+          pid: $$,
+        }.freeze
+      end
+
+      def api_name
+        @api_name || "control_path"
+      end
+
+      def api_version
+        @api_version || ControlPath::VERSION
+      end
+
+      def now
+        @now ||= Time.now.utc
+      end
+
+      def path
+        @path ||=
+          params[:captures].first
+          .gsub(%r{/+}, '/').freeze
+      end
+
+      def format_time time
+        controller.format_time(time)
+      end
+
+      def json_body data, raw = false
+        content = raw ? data : to_json(data)
+        [ 200, { 'Content-Type' => 'application/json' }, [ content.to_s ] ]
+      end
+
+      def clean_params params = self.params
+        h = { }
+        params.each do | k, v |
+          h[k.to_sym] = v unless v.nil?
         end
+        h.delete(:splat)
+        h.delete(:captures)
+        h
+      end
 
-        def api_name
-          @api_name || "control_path"
-        end
+      def locals
+        @locals ||= {
+          params: clean_params,
+          path: path,
+          now: format_time(now),
+        }
+      end
 
-        def api_version
-          @api_version || ControlPath::VERSION
-        end
-
-        def now
-          @now ||= Time.now.utc
-        end
-
-        def path
-          @path ||= params[:captures].first.gsub(%r{/+}, '/').freeze
-        end
-
-        def format_time time
-          controller.format_time(time)
-        end
-
-        def json_body data, raw = false
-          content = raw ? data : to_json(data)
-          [ 200, { 'Content-Type' => 'application/json' }, [ content.to_s ] ]
-        end
-
-        def clean_params params = self.params
-          h = { }
-          params.each do | k, v |
-            h[k.to_sym] = v unless v.nil?
-          end
-          h.delete(:splat)
-          h.delete(:captures)
-          h
-        end
-
-        def documentation
-          YAML.load <<'YAML'
+      def documentation
+        YAML.load <<'YAML'
 endpoint:
   /api/client/PATH:
     description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act."
@@ -240,7 +245,6 @@ endpoint:
      methods: [ GET, PUT, PATCH, DELETE ]
      params: [ ]
 YAML
-        end
       end
     end
   end

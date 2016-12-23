@@ -1,4 +1,5 @@
-(function (options) {
+var ControlPath =
+function (options) {
 
 var diff_time = function(a, b) {
   return a && b && ((a - b) / 1000);
@@ -148,7 +149,7 @@ var Status = React.createClass({
     var version_class = seen_current_version ? "current_version" : "not_current_version";
 
     var control_time = parse_time(control.time);
-    var status_time  = Date.parse(status.time);
+    var status_time  = parse_time(status.time);
     var version_age  = control.time ? (seen_current_version ? "" : diff_time_str(diff_time(control_time, status_time))) : "???";
 
     var status_interval = status.interval;
@@ -156,9 +157,9 @@ var Status = React.createClass({
     var status_age_class;
     if ( status_interval ) {
       status_age_class = "responsive";
-      if ( status_age > status_interval )
+      if ( status_age > status_interval * 1.10 )
          status_age_class = "unresponsive";
-      if ( status_age > status_interval * 2 )
+      if ( status_age > status_interval * 2.20 )
          status_age_class = "very_unresponsive";
     }
  
@@ -238,7 +239,7 @@ var StatusBox = React.createClass({
       dataType: 'json',
       cache: false,
       success: function(data) {
-        data.now_date = Date.parse(data.now);
+        data.now_date = parse_time(data.now);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -291,8 +292,4 @@ ReactDOM.render(
   <StatusBox options={options} />,
   document.getElementById('content')
 );
-})({
-     url: "/api/status/",
-     interval: 5000
-   });
-
+};
