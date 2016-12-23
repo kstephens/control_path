@@ -165,6 +165,7 @@ var Status = React.createClass({
           <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
           <TimeAsAge time={status.time} now={now} v_class={status_age_class} />
           <KeyVal k="status_interval" v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
+          <span className="smaller"><KeyVal k="agent_id" v={status.agent_id} /></span>
         </div>
         <div className="line">
           <span className="lc"><span className="dim smaller right">status:</span></span>
