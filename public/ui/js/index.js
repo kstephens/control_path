@@ -59,7 +59,7 @@ var KeyVal = React.createClass({
 
 var Shorten = React.createClass({
   render: function() {
-    var s   = this.props.content.toString();
+    var s   = (this.props.content || "").toString();
     var w_l = this.props.left_width || 8;
     var s_l = this.props.content_left  || s.substring(0, w_l);
     var s_r = this.props.content_right || s.substring(w_l, s.length);
@@ -94,7 +94,6 @@ var TimeShort = React.createClass({
     );
   }
 });
-
 
 var ControlMini = React.createClass({
   render: function() {
@@ -146,9 +145,9 @@ var Status = React.createClass({
     var seen_current_version = status.seen_version && status.seen_current_version === true;
     var version_class = seen_current_version ? "current_version" : "not_current_version";
 
-    var control_time = Date.parse(control.time);
+    var control_time = parse_time(control.time);
     var status_time  = Date.parse(status.time);
-    var version_age  = seen_current_version ? "" : diff_time_str(diff_time(control_time, status_time));
+    var version_age  = control.time ? (seen_current_version ? "" : diff_time_str(diff_time(control_time, status_time))) : "???";
 
     var status_interval = status.interval;
     var status_age = diff_time(now, status_time);
@@ -197,8 +196,14 @@ var Status = React.createClass({
         </div>
       </div>
     );
+    /*
+        <div className="line">
+           <ZoomOnHover><pre className="code">{JSON.stringify(data, null, 2)}</pre></ZoomOnHover>
+        </div>
+        */
   }
 });
+
 
 var StatusList = React.createClass({
   render: function() {
