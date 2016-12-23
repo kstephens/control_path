@@ -1,10 +1,12 @@
 require 'control_path/http'
 require 'control_path/json'
+require 'control_path/random'
 require 'logger'
 
 module ControlPath::Client
   class Agent
-    include ControlPath::Json
+    include ControlPath::Json, ControlPath::Random
+
     attr_accessor :uri, :interval, :config, :verbose
     attr_accessor :http
     attr_accessor :on_change
@@ -12,10 +14,13 @@ module ControlPath::Client
     attr_accessor :state, :action
     attr_accessor :response, :response_prev
     attr_accessor :new_data, :prev_data, :data
-    attr_accessor :host
+    attr_accessor :prev_interval
+    attr_accessor :host, :agent_id
+
     def initialize opts = nil, &blk
       @max_intervals = [ ]
       self.host = Socket.gethostname
+      self.agent_id = new_version
       opts.each do | k, v |
         self.send(:"#{k}=", v)
       end if opts
@@ -63,6 +68,7 @@ module ControlPath::Client
         query[:version] = x[:version]
       end
       query[:host] = host
+      query[:agent_id] = agent_id
       query[:interval] = max_interval(interval)
       uri.query = query.map{|k, v| "#{k}=#{v}"} * '&'
 
@@ -116,7 +122,7 @@ module ControlPath::Client
     end
 
     def sleep!
-      sleep rand(interval)
+      sleep(self.prev_interval = rand(interval))
       self
     end
 

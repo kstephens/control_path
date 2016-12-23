@@ -1,14 +1,15 @@
 require 'control_path/service'
 require 'control_path/json'
+require 'control_path/random'
 require 'fileutils'
 require 'time'
-require 'uuid'
 require 'awesome_print'
-require 'digest/sha1'
 
 module ControlPath::Service
   class Controller
     class Error < ControlPath::Service::Error ; end
+    include ControlPath::Random
+
     attr_accessor :store, :logger
 
     def initialize opts
@@ -91,21 +92,19 @@ module ControlPath::Service
     end
 
     def update_status! action, path, control, request, params, data = nil
-      seen_version = params[:version]
-      interval = params[:interval]
-      host = params[:host]
       status = store.read(path, STATUS) rescue nil
       status ||= { }
       new_status =
         status.
-        merge(time: format_time(now),
-              client_ip: request.ip.to_s,
-              path: path,
-              seen_version: seen_version,
-              seen_current_version: nil,
-              host: host,
-              interval: interval && interval.to_f,
-              params: params)
+        merge(time:                  format_time(now),
+              client_ip:             request.ip.to_s,
+              agent_id:              params[:agent_id],
+              path:                  path,
+              seen_version:          params[:version],
+              seen_current_version:  nil,
+              host:                  params[:host],
+              interval:              (x = params[:interval]) && x.to_f,
+              params:                params)
       case action
       when :PUT
         new_status[:data] = data if data
@@ -175,18 +174,6 @@ module ControlPath::Service
 
     def now
       Time.now.utc
-    end
-
-    def new_version
-      digest(new_uuid)
-    end
-
-    def digest str
-      Digest::SHA1.hexdigest(str)
-    end
-
-    def new_uuid
-      UUID.new.generate
     end
 
     def format_time time
