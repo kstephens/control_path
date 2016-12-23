@@ -3,12 +3,16 @@ require 'digest/sha1'
 
 module ControlPath
   module Random
-    def new_version
-      digest(new_uuid)
+    def new_token
+      hex_to_base64(digest(new_uuid)).gsub(/[^a-z0-9]+/i, '')
     end
 
     def digest str
       Digest::SHA1.hexdigest(str)
+    end
+
+    def hex_to_base64 str
+      [[str].pack("H*")].pack("m0")
     end
 
     def new_uuid

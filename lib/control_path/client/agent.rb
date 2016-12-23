@@ -20,7 +20,7 @@ module ControlPath::Client
     def initialize opts = nil, &blk
       @last_intervals = [ ]
       self.host = Socket.gethostname
-      self.agent_id = new_version
+      self.agent_id = new_token
       opts.each do | k, v |
         self.send(:"#{k}=", v)
       end if opts

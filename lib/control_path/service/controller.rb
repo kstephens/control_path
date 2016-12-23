@@ -170,7 +170,7 @@ module ControlPath::Service
     end
 
     def control_footer
-      { time: format_time(now), version: new_version }
+      { time: format_time(now), version: new_token }
     end
 
     def now
