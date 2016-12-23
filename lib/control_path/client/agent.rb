@@ -14,6 +14,7 @@ module ControlPath::Client
     attr_accessor :new_data, :data
     attr_accessor :host
     def initialize opts = nil, &blk
+      @max_intervals = [ ]
       self.host = Socket.gethostname
       opts.each do | k, v |
         self.send(:"#{k}=", v)
@@ -127,6 +128,8 @@ module ControlPath::Client
 
     def max_interval interval
       case interval
+      when Proc
+        @max_intervals.max
       when Range
         interval.last
       when Numeric
@@ -137,7 +140,10 @@ module ControlPath::Client
     def rand interval
       case interval
       when Proc
-        interval[]
+        t = interval[]
+        @max_intervals.shift while @max_intervals.size > 10
+        @max_intervals.push
+        t
       when Range
         t = rand_float
         interval.first * (1.0 - t) + interval.last * t
