@@ -7,6 +7,7 @@ require 'yaml'
 
 module ControlPath::Service
   class Application < Sinatra::Base
+    class Error < ControlPath::Service::Error ; end
     register Sinatra::Namespace
 
     ROOT_DIR = File.expand_path('../../../..', __FILE__).freeze

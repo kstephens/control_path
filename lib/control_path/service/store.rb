@@ -8,14 +8,13 @@ require 'digest/sha1'
 
 module ControlPath::Service
   class Store
-    class Error < ::StandardError; end
-
+    class Error < ControlPath::Service::Error; end
     include ControlPath::Json
     attr_accessor :dir, :file_system, :logger
 
     def initialize opts
       @logger      = opts[:logger]
-      @dir         = opts[:dir] or raise ArgumentError
+      @dir         = opts[:dir] or raise Error, "dir not specified"
       @file_system = opts[:file_system] || ::File
     end
 

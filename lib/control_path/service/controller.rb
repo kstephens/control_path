@@ -8,6 +8,7 @@ require 'digest/sha1'
 
 module ControlPath::Service
   class Controller
+    class Error < ControlPath::Service::Error ; end
     attr_accessor :store, :logger
 
     def initialize opts
