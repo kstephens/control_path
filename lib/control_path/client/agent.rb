@@ -11,7 +11,7 @@ module ControlPath::Client
 
     attr_accessor :state, :action
     attr_accessor :response, :response_prev
-    attr_accessor :new_data, :data
+    attr_accessor :new_data, :prev_data, :data
     attr_accessor :host
     def initialize opts = nil, &blk
       @max_intervals = [ ]
@@ -24,7 +24,7 @@ module ControlPath::Client
     end
 
     def test!
-      self.new_data ||= lambda do | this |
+      self.new_data ||= lambda do | this, data |
         { time: Time.now.to_i }
       end
       self.on_change ||= lambda do | this, response |
@@ -67,10 +67,11 @@ module ControlPath::Client
       uri.query = query.map{|k, v| "#{k}=#{v}"} * '&'
 
       begin
-        if data = new_data && new_data.call(self)
+        if data = new_data && new_data.call(self, prev_data)
           http.PUT(uri, to_json(data)) do | response |
             handle_response! response
           end
+          self.prev_data = data
         else
           http.GET(uri) do | response |
             handle_response! response
