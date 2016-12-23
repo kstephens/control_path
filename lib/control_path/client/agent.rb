@@ -49,7 +49,7 @@ module ControlPath::Client
     end
 
     def step!
-      check! if state != :stopping
+      check! if state != :stopping && state != :paused
       sleep! if state != :stopping
       self
     end
@@ -57,6 +57,22 @@ module ControlPath::Client
     def stop!
       self.action = :stop
       self.state  = :stopping
+      self
+    end
+
+    def pause!
+      if state == :running
+        self.action = :pause
+        self.state  = :paused
+      end
+      self
+    end
+
+    def resume!
+      if state == :paused
+        self.action = :resume
+        self.state  = :running
+      end
       self
     end
 
