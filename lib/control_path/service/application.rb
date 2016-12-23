@@ -177,7 +177,7 @@ module ControlPath::Service
         end
 
         def api_name
-          @api_name || self.class
+          @api_name || "control_path"
         end
 
         def api_version

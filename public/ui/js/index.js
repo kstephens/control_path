@@ -164,7 +164,21 @@ var StatusBox = React.createClass({
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        var now = new Date();
+        var url = this.props.url;
+        var data = {
+          api_name:    this.state.data.api_name    || "???",
+          api_version: this.state.data.api_version || "???",
+          now: now.toISOString(),
+          now_date: now,
+          url: url,
+          error_code: status.toString(),
+          error: ("" + status + " : " + err + " : " + url),
+          status: this.state.data.status || [ ]
+        };
+        console.error(JSON.stringify(data));
+        console.error(JSON.stringify(xhr));
+        this.setState({data: data});
       }.bind(this)
     });
   },
@@ -179,11 +193,15 @@ var StatusBox = React.createClass({
     var data = this.state.data;
     return (
       <div className="statusBox">
-        <h1>Status {data.path}</h1>
         <div>
-          <KeyVal k={"path"} v={data.path} v_class="path" />
-          <KeyVal k={"host"} v={data.host} /> 
-          <KeyVal k={"now"}  v={data.now} />
+          <KeyVal k="path" v={data.path} v_class="path" />
+          <KeyVal k="host" v={data.host} />
+          <KeyVal k="now"  v={data.now} />
+          <span className="error">{data.error}</span>
+          <span className="right">
+          <KeyVal k="api_name"     v={data.api_name} />
+          <KeyVal k="api_version"  v={data.api_version} />
+          </span>
         </div>
         <div className="statusList">
           <StatusList top_level={data} data={data.status} />

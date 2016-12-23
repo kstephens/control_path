@@ -80,6 +80,13 @@ span.flash {
   transition: background 500ms ease-in;
 }
 
+.error {
+    margin: 2em;
+    border: 1px;
+    border-color: #811;
+    background: #222;
+    color: #c44;
+}
 
 /*****************************/
 
@@ -102,9 +109,11 @@ span.display_on_hover {
 }
 .left {
   text-align: left;
+  float: left;
 }
 .right {
   text-align: right;
+  float: right;
 }
 .center {
   text-align: center;
