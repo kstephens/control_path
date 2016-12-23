@@ -227,9 +227,9 @@ var StatusList = React.createClass({
 });
 
 var StatusBox = React.createClass({
-  loadStatussFromServer: function() {
+  loadFromServer: function() {
     $.ajax({
-      url: this.props.url,
+      url: this.props.options.url,
       dataType: 'json',
       cache: false,
       success: function(data) {
@@ -238,7 +238,7 @@ var StatusBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         var now = new Date();
-        var url = this.props.url;
+        var url = this.props.options.url;
         var data = {
           api_name:    this.state.data.api_name    || "???",
           api_version: this.state.data.api_version || "???",
@@ -259,13 +259,13 @@ var StatusBox = React.createClass({
     return { data: { now_date: new Date(), status: [ ]} };
   },
   componentDidMount: function() {
-    this.loadStatussFromServer();
-    setInterval(this.loadStatussFromServer, this.props.pollInterval);
+    this.loadFromServer();
+    setInterval(this.loadFromServer, this.props.options.interval);
   },
   render: function() {
     var data = this.state.data;
     return (
-      <div className="statusBox">
+      <div className="status_box">
         <div>
           <KeyVal k="path" v={data.path} v_class="path" />
           <KeyVal k="host" v={data.host} />
@@ -283,8 +283,11 @@ var StatusBox = React.createClass({
 });
 
 ReactDOM.render(
-  <StatusBox url="/api/status/" pollInterval={5000} />,
+  <StatusBox options={options} />,
   document.getElementById('content')
 );
-})({});
+})({
+     url: "/api/status/",
+     interval: 5000
+   });
 
