@@ -5,7 +5,7 @@ require 'logger'
 module ControlPath::Client
   class Agent
     include ControlPath::Json
-    attr_accessor :uri, :interval, :config
+    attr_accessor :uri, :interval, :config, :verbose
     attr_accessor :http
     attr_accessor :on_change
 
@@ -95,7 +95,7 @@ module ControlPath::Client
 
     def log_exception! exc
       logger.error "#{uri} failed: #{exc.inspect}"
-      logger.error "  #{exc.backtrace * "\n  "}"
+      logger.error "  #{exc.backtrace * "\n  "}" if verbose
     end
 
     def changed? a, b
