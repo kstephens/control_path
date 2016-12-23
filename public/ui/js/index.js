@@ -165,33 +165,33 @@ var Status = React.createClass({
           <KeyVal k="status_interval" v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
         </div>
         <div className="line">
-          <span className="lc"><span className="dim">status:</span></span>
+          <span className="lc"><span className="dim smaller right">status:</span></span>
           <span className="rc">
             <span className="version"><Shorten content={status.seen_version || '???'} content_class={version_class} /></span>
             <KeyVal k="version_age"  v={version_age}              v_class={version_class} />
           </span>
         </div>
         <div className="line">
-          <span className="lc"><span className="dim">data:</span></span>
+          <span className="lc"><span className="dim smaller right">data:</span></span>
           <span className="rc">
              <ZoomOnHover><pre className="code">{JSON.stringify(status.data, null, 2)}</pre></ZoomOnHover>
           </span>
         </div>
         <div className="line">
-          <span className="lc"><span className="dim">control:</span></span>
+          <span className="lc"><span className="dim smaller right">control:</span></span>
           <span className="rc">
             <span className="version"><Shorten content={control.version} content_class={version_class} /></span>
             <TimeShort time={control.time} />
           </span>
         </div>
         <div className="line">
-          <span className="lc"><span className="dim">data:</span></span>
+          <span className="lc"><span className="dim smaller right">data:</span></span>
           <span className="rc">
              <ZoomOnHover><pre className="code">{JSON.stringify(control.data, null, 2)}</pre></ZoomOnHover>
           </span>
         </div>
         <div className="line">
-          <span className="lc"><span className="dim">controls:</span></span>
+          <span className="lc"><span className="dim smaller right">controls:</span></span>
           <span className="rc"><span className="status-controls">{controls}</span></span>
         </div>
       </div>
