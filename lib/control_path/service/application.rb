@@ -238,6 +238,7 @@ endpoint:
   /api/control/PATH:
      description: "Manipulate control data for PATH."
      methods: [ GET, PUT, PATCH, DELETE ]
+     params: [ ]
 YAML
         end
       end
