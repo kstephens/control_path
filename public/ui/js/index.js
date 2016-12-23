@@ -153,11 +153,15 @@ var Status = React.createClass({
 
     var status_interval = status.interval;
     var status_age = diff_time(now, status_time);
-    var status_age_class =
-      ! status_interval ||
-      status_age > status_interval ?
-        "unresponsive" : "responsive";
-
+    var status_age_class;
+    if ( status_interval ) {
+      status_age_class = "responsive";
+      if ( status_age > status_interval )
+         status_age_class = "unresponsive";
+      if ( status_age > status_interval * 2 )
+         status_age_class = "very_unresponsive";
+    }
+ 
     return (
       <div className="status">
         <div className="line">

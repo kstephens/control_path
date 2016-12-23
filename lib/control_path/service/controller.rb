@@ -47,6 +47,7 @@ module ControlPath::Service
     def fetch_control! path
       result = { status: 'UNKNOWN', path: path }
       begin
+        # status = store.read(path, STATUS)
         merged, controls = merged_controls(path)
         result = result.merge(control: merged)
         result[:status] = 'OK'

@@ -58,11 +58,15 @@ span.path {
 /*****************************/
 
 span.responsive {
-  color: #2F2 !important;
+  color: #2f2 !important;
 }
 
 span.unresponsive {
-  color: #F42 !important;
+  color: #de2 !important;
+}
+
+span.very_unresponsive {
+  color: #f42 !important;
 }
 
 /*****************************/
