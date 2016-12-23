@@ -14,9 +14,12 @@ begin
       Process.kill(x, $$)
     end
   end
+  ticker = 1
   new_data = lambda do | this, data |
-    {host: Socket.gethostname,
+    {
+      host: Socket.gethostname,
       pid: $$,
+      ticker: ticker += 1,
       description: %q{
 To SIGTERM this control_path server process:
   curl -X PUT -d '{"signal":"TERM"}' http://localhost:9090/api/control/_self_}
