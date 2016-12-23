@@ -15,6 +15,30 @@ module ControlPath
       end
     end
 
+    def PUT uri, body
+      uri = URI.parse(uri) unless URI === uri
+      response = nil
+      Net::HTTP.start(uri.host, uri.port) do |http|
+        request = Net::HTTP::Put.new uri
+        request.body = body
+        response = http.request request
+        response = Response.new(response, uri)
+        yield response
+      end
+    end
+
+    def PATCH uri, body
+      uri = URI.parse(uri) unless URI === uri
+      response = nil
+      Net::HTTP.start(uri.host, uri.port) do |http|
+        request = Net::HTTP::Patch.new uri
+        request.body = body
+        response = http.request request
+        response = Response.new(response, uri)
+        yield response
+      end
+    end
+
     class Response
       include Json
       attr_reader :response, :at, :uri

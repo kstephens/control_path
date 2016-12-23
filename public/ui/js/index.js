@@ -106,12 +106,18 @@ var Status = React.createClass({
               <td><KeyVal k={"version_age"} v={version_age} v_class={version_class}/></td>
             </tr>
             <tr>
+              <td><span className="dim">Data:</span></td>
+              <td colSpan="2">
+                <pre className="code">{JSON.stringify(status.data, null, 2)}</pre>
+              </td>
+            </tr>
+            <tr>
               <td><span className="dim">Control:</span></td>
               <td><KeyVal k={"version"} v={control.version} v_class={version_class} /></td>
               <td><KeyVal k={"time"}    v={control.time} /></td>
             </tr>
             <tr>
-              <td />
+              <td><span className="dim">Data:</span></td>
               <td colSpan="2">
                 <pre className="code">{JSON.stringify(control.data, null, 2)}</pre>
               </td>

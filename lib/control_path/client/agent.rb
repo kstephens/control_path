@@ -1,14 +1,17 @@
 require 'control_path/http'
+require 'control_path/json'
 require 'logger'
 
 module ControlPath::Client
   class Agent
+    include ControlPath::Json
     attr_accessor :uri, :interval, :config
     attr_accessor :http
     attr_accessor :on_change
 
     attr_accessor :state, :action
     attr_accessor :response, :response_prev
+    attr_accessor :new_data, :data
     attr_accessor :host
     def initialize opts = nil, &blk
       self.host = Socket.gethostname
@@ -16,8 +19,15 @@ module ControlPath::Client
         self.send(:"#{k}=", v)
       end if opts
       instance_eval &blk if block_given?
+      self
+    end
+
+    def test!
+      self.new_data ||= lambda do | this |
+        { time: Time.now.to_i }
+      end
       self.on_change ||= lambda do | this, response |
-        $stderr.puts "#{self.class} on_change"
+        $stderr.puts "#{self.class} on_change #{this.data.inspect}"
       end
       self
     end
@@ -56,19 +66,36 @@ module ControlPath::Client
       uri.query = query.map{|k, v| "#{k}=#{v}"} * '&'
 
       begin
-        http.GET(uri) do | response |
-          if response.success?
-            self.response_prev = self.response
-            self.response      = response
-            if changed?(response, response_prev)
-              changed! response
-            end
+        if data = new_data && new_data.call(self)
+          http.PUT(uri, to_json(data)) do | response |
+            handle_response! response
+          end
+        else
+          http.GET(uri) do | response |
+            handle_response! response
           end
         end
       rescue => exc
-        logger.error "#{uri} failed: #{exc.inspect}"
-        # logger.error exc
+        log_exception! exc
       end
+    end
+
+    def handle_response! response
+      if response.success?
+        self.response_prev = self.response
+        self.response      = response
+        if changed?(response, response_prev)
+          if response.body && ! response.body.empty?
+            self.data = from_json(response.body)
+          end
+          changed! response
+        end
+      end
+    end
+
+    def log_exception! exc
+      logger.error "#{uri} failed: #{exc.inspect}"
+      logger.error "  #{exc.backtrace * "\n  "}"
     end
 
     def changed? a, b

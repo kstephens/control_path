@@ -24,7 +24,7 @@ Example
 
 ```
  $ irb -I lib -r control_path/client/agent
-2.1.1 :001 > ControlPath::Client::Agent.new(http: ControlPath::Http.new, uri: "http://localhost:9090/api/client/foo/bar", interval: (2 .. 4)).run!
+2.1.1 :001 > ControlPath::Client::Agent.new(http: ControlPath::Http.new, uri: "http://localhost:9090/api/client/foo/bar", interval: (2 .. 4)).test!.run!
 ```
 
 ```

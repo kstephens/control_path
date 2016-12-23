@@ -74,16 +74,24 @@ module ControlPath::Service
       get '/?' do
         endpoints = {
           '/api/client/PATH' => {
-            methods: [ 'GET' ],
+            methods: [ :GET, :PUT, :PATCH, ],
+            params: [ :version, :interval, :host, ],
             description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act.",
           },
+          '/api/client-/PATH' => {
+            methods: [ :GET, ],
+            params: [ ],
+            description: "Same as /api/client/PATH, but does not update /api/client/PATH state.",
+          },
           '/api/status/PATH'  => {
-            methods: [ 'GET' ],
-            description: "Returns status of client GETs.",
+            methods: [ :GET ],
+            params: [ ],
+            description: "Status of clients under PATH.",
           },
           '/api/control/PATH' => {
-            methods: [ 'GET', 'PUT', 'PATCH', 'DELETE' ],
-            description: "GET, PUT, PATCH or DELETE the control for PATH.",
+            methods: [ :GET, :PUT, :PATCH, :DELETE ],
+            params: [ ],
+            description: "Manipulate control data for PATH.",
           },
         }
         json_body(server_metadata.merge(endpoints: endpoints))
@@ -91,14 +99,13 @@ module ControlPath::Service
 
       namespace '/client' do
         get PATH_RX do
-          control = controller.fetch_control!(path)
-          begin
-            controller.update_status!(path, control, request, clean_params)
-          rescue => exc
-            logger.error exc
-            control[:status] = 'API-ERROR'
-          end
-          json_body control
+          update_status! :GET
+        end
+        put PATH_RX do
+          update_status! :PUT
+        end
+        patch PATH_RX do
+          update_status! :PATCH
         end
       end
 
@@ -143,6 +150,22 @@ module ControlPath::Service
 
       helpers do
         include ControlPath::Json
+
+        def update_status! action
+          control = controller.fetch_control!(path)
+          begin
+            data = \
+            case action
+            when :PUT, :PATCH
+              from_json(request.body)
+            end
+            controller.update_status!(action, path, control, request, clean_params, data)
+          rescue => exc
+            logger.error exc
+            control[:status] = 'API-ERROR'
+          end
+          json_body control
+        end
 
         def server_metadata
           @server_metadata ||= {
