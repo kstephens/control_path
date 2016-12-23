@@ -44,6 +44,21 @@ var KeyVal = React.createClass({
   }
 });
 
+var ControlMini = React.createClass({
+  render: function() {
+    var top_level = this.props.top_level;
+    var now = top_level.now_date;
+    var data = this.props.data;
+    var version_class = this.props.version_class;
+    var k = data.version + " " + data.time;
+    return (
+      <span className="control_mini">
+        <KeyVal k={k} v={data.path} v_class="path" />
+      </span>
+    );
+  }
+});
+
 var Control = React.createClass({
   render: function() {
     var top_level = this.props.top_level;
@@ -70,9 +85,9 @@ var Status = React.createClass({
     var control = data.control;
     var controls = data.controls.map(function(item) {
        return (
-       <div key={item.path}>
-         <Control top_level={top_level} data={item} key={item.path} />
-       </div>
+       <span key={item.path}>
+         <ControlMini top_level={top_level} data={item} key={item.path} />
+       </span>
        );
     });
     var seen_current_version = status.seen_version && status.seen_current_version === true;
