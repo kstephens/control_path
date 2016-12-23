@@ -3,6 +3,7 @@ require 'control_path/json'
 require 'sinatra'
 require 'sinatra/namespace'
 require 'logger'
+require 'yaml'
 
 module ControlPath::Service
   class Application < Sinatra::Base
@@ -72,29 +73,8 @@ module ControlPath::Service
       end
 
       get '/?' do
-        endpoints = {
-          '/api/client/PATH' => {
-            methods: [ :GET, :PUT, :PATCH, ],
-            params: [ :version, :interval, :host, ],
-            description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act.",
-          },
-          '/api/client-/PATH' => {
-            methods: [ :GET, ],
-            params: [ ],
-            description: "Same as /api/client/PATH, but does not update /api/client/PATH state.",
-          },
-          '/api/status/PATH'  => {
-            methods: [ :GET ],
-            params: [ ],
-            description: "Status of clients under PATH.",
-          },
-          '/api/control/PATH' => {
-            methods: [ :GET, :PUT, :PATCH, :DELETE ],
-            params: [ ],
-            description: "Manipulate control data for PATH.",
-          },
-        }
-        json_body(server_metadata.merge(endpoints: endpoints))
+        json_body(server_metadata.
+                  merge(documentation))
       end
 
       namespace '/client' do
@@ -169,10 +149,20 @@ module ControlPath::Service
 
         def server_metadata
           @server_metadata ||= {
+            api_name: api_name,
+            api_version: api_version,
             now: format_time(now),
             host: Socket.gethostname,
             pid: $$,
           }.freeze
+        end
+
+        def api_name
+          @api_name || self.class
+        end
+
+        def api_version
+          @api_version || ControlPath::VERSION
         end
 
         def now
@@ -200,6 +190,36 @@ module ControlPath::Service
           h.delete(:splat)
           h.delete(:captures)
           h
+        end
+
+        def documentation
+          YAML.load <<'YAML'
+endpoint:
+  /api/client/PATH:
+    description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act."
+    methods: [ GET, PUT, PATCH ]
+    params:
+      version:
+        description: "The last seen control 'version', indicating the client is up-to-date."
+        required: false
+      interval:
+        description: "The max seconds until the client polls again."
+        required: false
+      host:
+        description: "The host name of client."
+        required: false
+  /api/client-/PATH:
+     description: "Same as /api/client/PATH, but does not update /api/client/PATH state."
+     methods: [ GET ]
+     params: [ ]
+  /api/status/PATH:
+     description: "Status of clients under PATH."
+     methods: [ GET ]
+     params: [ ]
+  /api/control/PATH:
+     description: "Manipulate control data for PATH."
+     methods: [ GET, PUT, PATCH, DELETE ]
+YAML
         end
       end
     end
