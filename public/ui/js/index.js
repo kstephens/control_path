@@ -1,3 +1,5 @@
+(function (options) {
+
 var diff_time = function(a, b) {
   return a && b && ((a - b) / 1000);
 };
@@ -284,3 +286,5 @@ ReactDOM.render(
   <StatusBox url="/api/status/" pollInterval={5000} />,
   document.getElementById('content')
 );
+})({});
+
