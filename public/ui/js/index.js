@@ -295,6 +295,6 @@ var StatusBox = React.createClass({
 
 ReactDOM.render(
   <StatusBox options={options} />,
-  document.getElementById('content')
+  document.getElementById(options['mountpoint'])
 );
 };

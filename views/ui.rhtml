@@ -20,7 +20,8 @@
       var url = "/api/status" + locals["path"];
       ControlPath({
          url: url,
-         interval: Number(params['interval'])
+         interval: Number(params['interval']),
+         mountpoint: 'content'
        });
     </script>
   </body>
