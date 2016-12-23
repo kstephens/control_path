@@ -18,7 +18,7 @@ module ControlPath::Client
     attr_accessor :host, :agent_id
 
     def initialize opts = nil, &blk
-      @max_intervals = [ ]
+      @last_intervals = [ ]
       self.host = Socket.gethostname
       self.agent_id = new_version
       opts.each do | k, v |
@@ -122,7 +122,11 @@ module ControlPath::Client
     end
 
     def sleep!
-      sleep(self.prev_interval = rand(interval))
+      sec = rand(interval)
+      self.prev_interval = sec
+      @last_intervals.shift while @last_intervals.size > 10
+      @last_intervals.push sec
+      sleep(sec)
       self
     end
 
@@ -136,31 +140,12 @@ module ControlPath::Client
     def max_interval interval
       case interval
       when Proc
-        @max_intervals.max
+        @last_intervals.max
       when Range
         interval.last
       when Numeric
         interval
       end
-    end
-
-    def rand interval
-      case interval
-      when Proc
-        t = interval[]
-        @max_intervals.shift while @max_intervals.size > 10
-        @max_intervals.push
-        t
-      when Range
-        t = rand_float
-        interval.first * (1.0 - t) + interval.last * t
-      when Numeric
-        interval.to_f
-      end
-    end
-
-    def rand_float
-      Kernel.rand
     end
 
     def logger
