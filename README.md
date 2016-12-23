@@ -33,7 +33,7 @@ Start Client
 2.1.1 :001 > ControlPath::Client::Agent.new(http: ControlPath::Http.new, uri: "http://localhost:9090/api/client/foo/bar", interval: (2 .. 4)).test!.run!
 ```
 
-Start Client
+Start UI
 -------------
 ```
 $ open http://localhost:9090/ui
