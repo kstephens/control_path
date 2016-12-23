@@ -17,10 +17,11 @@
     <script type="text/babel" src="/ui/js/index.js"></script>
     <script type="text/babel">
       var locals = <%= to_json(locals) %>;
+      var params = locals["params"];
       var url = "/api/status" + locals["path"];
       ControlPath({
          url: url,
-         interval: 5000
+         interval: Number(params['interval'])
        });
     </script>
   </body>
