@@ -7,9 +7,6 @@ body {
   padding: 1em;
 }
 
-div {
-}
-
 a {
   text-decoration: none;
   color: #ccc;
@@ -19,27 +16,43 @@ a:hover {
   text-decoration: none;
 }
 
-table > tbody > tr {
-  vertical-align: top;
+div.line {
+    display: block;
+    overflow: hidden;
 }
-table > tbody > tr > td {
-  align: left;
+
+div.status {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*****************************/
+
+span.lc {
+    float: left;
+    width: 4em;
+}
+span.rc {
+    width: auto;
 }
 
 /*****************************/
 
 pre.code {
-  background-color: #222;
+  display: inline-block;
+  background-color: #181818;
   font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
-  font-size: 0.8em;
-  padding: 0.1em;
+  font-size: 60%;
+  padding: 2px;
+  margin: 0px;
 }
 
 /*****************************/
 
 span.path {
-    font-weight: bolder;
-    color: #ddd;
+  font-weight: bolder;
+  color: #ddd;
 }
 
 /*****************************/
@@ -53,6 +66,12 @@ span.unresponsive {
 }
 
 /*****************************/
+
+span.version {
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
 
 span.current_version {
   color: #2F2 !important;
@@ -90,11 +109,23 @@ span.flash {
 
 /*****************************/
 
+a.zoom_on_hover {
+  text-decoration: none;
+}
+
+a.zoom_on_hover:hover span {
+  cursor: default;
+  font-size: 24px !important;
+}
+
+/*****************************/
+
 a.display_on_hover {
   text-decoration: none;
 }
 
 a.display_on_hover:hover span {
+  cursor: default;
   display: initial;
 }
 
@@ -105,7 +136,7 @@ span.display_on_hover {
 /*****************************/
 
 .dim {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .left {
   text-align: left;

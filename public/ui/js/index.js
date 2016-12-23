@@ -12,6 +12,12 @@ var diff_time_str = function(dt) {
     return "" + (dt / (60 * 60)).toFixed(2) + " hr";
   return "" + (dt / (24 * 60 * 60)).tofixed(2) + " day";
 };
+var parse_time = function(x) {
+  if ( typeof x === 'string' )
+    return Date.parse(x);
+  else
+    return x;
+}
 
 var FlashOnChange = React.createClass({
   componentDidUpdate: function(props, state) {
@@ -26,7 +32,15 @@ var FlashOnChange = React.createClass({
     }
   },
   render: function() {
-    return <span ref="elem">{this.props.content}</span>
+    return <span ref="elem">{this.props.children}</span>
+  }
+});
+
+var ZoomOnHover = React.createClass({
+  render: function() {
+    return (
+      <a href="#" className="zoom_on_hover"><span>{this.props.children}</span></a>
+      );
   }
 });
 
@@ -36,13 +50,51 @@ var KeyVal = React.createClass({
       <span className="key_val">
         <a href="#" className="display_on_hover">
           <span className="v"><span className={this.props.v_class}><FlashOnChange content={this.props.v}>{this.props.v}</FlashOnChange></span></span>
-          <span className="display_on_hover"> : <span className="k"><FlashOnChange content={this.props.k}>{this.props.k}</FlashOnChange></span>
-          </span>
+          <span className="display_on_hover"> : <span className="k"><FlashOnChange content={this.props.k}>{this.props.k}</FlashOnChange></span></span>
         </a>
       </span>
       );
   }
 });
+
+var Shorten = React.createClass({
+  render: function() {
+    var s   = this.props.content.toString();
+    var w_l = this.props.left_width || 8;
+    var s_l = this.props.content_left  || s.substring(0, w_l);
+    var s_r = this.props.content_right || s.substring(w_l, s.length);
+    var c_l = this.props.left_class  || this.props.content_class;
+    var c_r = this.props.right_class || this.props.content_class;
+    return (
+      <span className="shorten">
+        <a href="#" className="display_on_hover">
+          <span className="shorten_left"><span className={c_l}><FlashOnChange content={s_l}>{s_l}</FlashOnChange></span></span><span className="display_on_hover"><span className={c_r}><FlashOnChange content={s_r}>{s_r}</FlashOnChange></span></span>
+        </a>
+      </span>
+      );
+  }
+});
+
+var TimeAsAge = React.createClass({
+  render: function() {
+    var now  = parse_time(this.props.now);
+    var time = parse_time(this.props.time);
+    var age  = diff_time(now, time);
+    return (
+       <KeyVal k={this.props.time} v={diff_time_str(age)} v_class={this.props.v_class} />
+    );
+  }
+});
+
+var TimeShort = React.createClass({
+  render: function() {
+    var time = this.props.time;
+    return (
+      <FlashOnChange content={time}><Shorten content={time} left_width="10" content_class="{this.props.v_class}"/></FlashOnChange>
+    );
+  }
+});
+
 
 var ControlMini = React.createClass({
   render: function() {
@@ -76,6 +128,7 @@ var Control = React.createClass({
   }
 });
 
+
 var Status = React.createClass({
   render: function() {
     var top_level = this.props.top_level;
@@ -106,43 +159,41 @@ var Status = React.createClass({
 
     return (
       <div className="status">
-        <div>
-          <KeyVal k={"path"} v={data.path} v_class={"path"} />
+        <div className="line">
+          <KeyVal k="path" v={data.path} v_class={"path"} />
           <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
-          <KeyVal k={status.time} v={diff_time_str(diff_time(now, status_time))} v_class={status_age_class} />
-          <KeyVal k={"status_interval"} v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
+          <TimeAsAge time={status.time} now={now} v_class={status_age_class} />
+          <KeyVal k="status_interval" v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
         </div>
-        <div>
-          <table>
-          <tbody>
-            <tr>
-              <td><span className="dim">Status:</span></td>
-              <td><KeyVal k={"seen_version"} v={status.seen_version || '???'} v_class={version_class} /></td>
-              <td><KeyVal k={"version_age"} v={version_age} v_class={version_class}/></td>
-            </tr>
-            <tr>
-              <td><span className="dim">Data:</span></td>
-              <td colSpan="2">
-                <pre className="code">{JSON.stringify(status.data, null, 2)}</pre>
-              </td>
-            </tr>
-            <tr>
-              <td><span className="dim">Control:</span></td>
-              <td><KeyVal k={"version"} v={control.version} v_class={version_class} /></td>
-              <td><KeyVal k={"time"}    v={control.time} /></td>
-            </tr>
-            <tr>
-              <td><span className="dim">Data:</span></td>
-              <td colSpan="2">
-                <pre className="code">{JSON.stringify(control.data, null, 2)}</pre>
-              </td>
-            </tr>
-            <tr>
-              <td />
-              <td colSpan="2"><div className="status-controls">{controls}</div></td>
-            </tr>
-          </tbody>
-          </table>
+        <div className="line">
+          <span className="lc"><span className="dim">status:</span></span>
+          <span className="rc">
+            <span className="version"><Shorten content={status.seen_version || '???'} content_class={version_class} /></span>
+            <KeyVal k="version_age"  v={version_age}              v_class={version_class} />
+          </span>
+        </div>
+        <div className="line">
+          <span className="lc"><span className="dim">data:</span></span>
+          <span className="rc">
+             <ZoomOnHover><pre className="code">{JSON.stringify(status.data, null, 2)}</pre></ZoomOnHover>
+          </span>
+        </div>
+        <div className="line">
+          <span className="lc"><span className="dim">control:</span></span>
+          <span className="rc">
+            <span className="version"><Shorten content={control.version} content_class={version_class} /></span>
+            <TimeShort time={control.time} />
+          </span>
+        </div>
+        <div className="line">
+          <span className="lc"><span className="dim">data:</span></span>
+          <span className="rc">
+             <ZoomOnHover><pre className="code">{JSON.stringify(control.data, null, 2)}</pre></ZoomOnHover>
+          </span>
+        </div>
+        <div className="line">
+          <span className="lc"><span className="dim">controls:</span></span>
+          <span className="rc"><span className="status-controls">{controls}</span></span>
         </div>
       </div>
     );
@@ -161,7 +212,7 @@ var StatusList = React.createClass({
       );
     });
     return (
-      <div className="statusList">
+      <div className="status_list">
         {statuses}
       </div>
     );
@@ -218,9 +269,7 @@ var StatusBox = React.createClass({
           <KeyVal k="api_version"  v={data.api_version} />
           </span>
         </div>
-        <div className="statusList">
-          <StatusList top_level={data} data={data.status} />
-        </div>
+        <StatusList top_level={data} data={data.status} />
       </div>
     );
   }
