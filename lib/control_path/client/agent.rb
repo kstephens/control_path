@@ -125,7 +125,12 @@ module ControlPath::Client
     def changed? a, b
       a && a.success? && \
       b && b.success? && \
-      a.body != b.body
+      control_version(a) != control_version(b)
+    end
+
+    def control_version rs
+      x = rs.body_data[:control] and \
+      x[:version]
     end
 
     def changed! response
