@@ -150,12 +150,12 @@ var Status = React.createClass({
        </span>
        );
     });
-    var seen_current_version = status.seen_version && status.seen_current_version === true;
-    var version_class = seen_current_version ? "current_version" : "not_current_version";
+    var seen_current_control_version = status.seen_control_version && status.seen_current_control_version === true;
+    var version_class = seen_current_control_version ? "current_version" : "not_current_version";
 
     var control_time = parse_time(control.time);
     var status_time  = parse_time(status.time);
-    var version_age  = control.time ? (seen_current_version ? "" : diff_time_str(diff_time(control_time, status_time))) : "???";
+    var version_age  = control.time ? (seen_current_control_version ? "" : diff_time_str(diff_time(control_time, status_time))) : "???";
 
     var status_interval = status.interval;
     var status_age = diff_time(now, status_time);
@@ -180,7 +180,7 @@ var Status = React.createClass({
         <div className="line">
           <span className="lc"><span className="dim smaller right">status:</span></span>
           <span className="rc">
-            <span className="version"><Shorten content={status.seen_version || '???'} content_class={version_class} /></span>
+            <span className="version"><Shorten content={status.seen_control_version || '???'} content_class={version_class} /></span>
             <KeyVal k="version_age"  v={version_age}              v_class={version_class} />
           </span>
         </div>

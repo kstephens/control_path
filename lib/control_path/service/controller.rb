@@ -9,7 +9,7 @@ require 'awesome_print'
 module ControlPath::Service
   class Controller
     class Error < ControlPath::Service::Error ; end
-    include ControlPath::Random
+    include ControlPath::Random, ControlPath::Metadata
 
     attr_accessor :store, :logger
 
@@ -26,9 +26,9 @@ module ControlPath::Service
       files.map do | file |
         control, controls = merged_controls(file[:path])
         status = store.read(file[:path], STATUS)
-        control_version = control && control[:version]
-        seen_version = status[:seen_version]
-        status = status.merge(seen_current_version: control_version.to_s == seen_version.to_s)
+        control_version = control && control[:control_version]
+        seen_control_version = status[:seen_control_version]
+        status = status.merge(seen_current_control_version: control_version.to_s == seen_control_version.to_s)
         { path: file[:path],
           status: status,
           control: control,
@@ -102,8 +102,8 @@ module ControlPath::Service
               client_ip:             request.ip.to_s,
               agent_id:              params[:agent_id],
               path:                  path,
-              seen_version:          params[:version],
-              seen_current_version:  nil,
+              seen_control_version:  params[:control_version],
+              seen_current_control_version:  nil,
               host:                  params[:host],
               interval:              (x = params[:interval]) && x.to_f,
               params:                params)
@@ -176,10 +176,6 @@ module ControlPath::Service
 
     def now
       Time.now.utc
-    end
-
-    def format_time time
-      time.getutc.iso8601(3)
     end
 
     def logger

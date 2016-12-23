@@ -81,7 +81,7 @@ module ControlPath::Client
 
       query = { }
       if response_prev and x = response_prev.body_data and x = x[:control]
-        query[:version] = x[:version]
+        query[:control_version] = x[:version]
       end
       query[:host] = host
       query[:agent_id] = agent_id
