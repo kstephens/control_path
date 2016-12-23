@@ -64,10 +64,10 @@ module ControlPath::Service
 
     namespace '/api' do
       error 400..600 do
-        data = {
-          status: response.status,
-          error: "Error #{response.status}",
-        }
+        data =
+          server_metadata.
+          merge(status: response.status,
+          error: "Error #{response.status}")
         content_type 'application/json'
         response.body = [ Json.to_json(data) ]
         logger.error data.inspect
@@ -88,12 +88,23 @@ module ControlPath::Service
         patch PATH_RX do
           update_status! :PATCH
         end
+        delete PATH_RX do
+          update_status! :DELETE
+        end
       end
 
       namespace '/client-' do
         get PATH_RX do
           control = controller.fetch_control!(path)
           json_body control
+        end
+        delete PATH_RX do
+          if control = controller.fetch_control!(path)
+            controller.delete_status!(path)
+            json_body control
+          else
+            404
+          end
         end
       end
 
@@ -137,10 +148,17 @@ module ControlPath::Service
           begin
             data = \
             case action
+            when :GET
+              nil
             when :PUT, :PATCH
               from_json(request.body)
+            when :DELETE
+              controller.delete_status!(path)
+              action = nil
+            else
+              raise Error, "invalidate action #{action.inspect}"
             end
-            controller.update_status!(action, path, control, request, clean_params, data)
+            controller.update_status!(action, path, control, request, clean_params, data) if action
           rescue => exc
             logger.error exc
             control[:status] = 'API-ERROR'
@@ -198,7 +216,7 @@ module ControlPath::Service
 endpoint:
   /api/client/PATH:
     description: "Clients GET their PATH; if the content changed since last GET, clients are expected to act."
-    methods: [ GET, PUT, PATCH ]
+    methods: [ GET, PUT, PATCH, DELETE ]
     params:
       version:
         description: "The last seen control 'version', indicating the client is up-to-date."
@@ -211,7 +229,7 @@ endpoint:
         required: false
   /api/client-/PATH:
      description: "Same as /api/client/PATH, but does not update /api/client/PATH state."
-     methods: [ GET ]
+     methods: [ GET, DELETE ]
      params: [ ]
   /api/status/PATH:
      description: "Status of clients under PATH."

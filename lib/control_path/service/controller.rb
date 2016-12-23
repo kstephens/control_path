@@ -115,6 +115,10 @@ module ControlPath::Service
       store.write!(path, STATUS, new_status)
     end
 
+    def delete_status! path
+      store.delete!(path, STATUS)
+    end
+
     # Implementation:
 
     def merged_controls path
