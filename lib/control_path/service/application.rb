@@ -204,7 +204,7 @@ module ControlPath::Service
         def clean_params params = self.params
           h = { }
           params.each do | k, v |
-            h[k.to_sym] = v
+            h[k.to_sym] = v unless v.nil?
           end
           h.delete(:splat)
           h.delete(:captures)
