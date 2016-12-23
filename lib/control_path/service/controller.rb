@@ -1,6 +1,7 @@
 require 'control_path/service'
 require 'control_path/json'
 require 'control_path/random'
+require 'control_path/metadata'
 require 'fileutils'
 require 'time'
 require 'awesome_print'

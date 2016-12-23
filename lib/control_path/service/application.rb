@@ -1,7 +1,9 @@
 require 'control_path/service'
 require 'control_path/json'
+require 'control_path/metadata'
 require 'erb'
 require 'yaml'
+require 'pp'
 require 'logger'
 require 'sinatra'
 require 'sinatra/base'
@@ -38,12 +40,13 @@ module ControlPath::Service
     attr_accessor :controller, :logger
 
     PATH_RX = %r{^(/.*?)/?}
+    API_ERROR = 'API-ERROR'.freeze
+
+    not_found      do error_response! end
+    error 400..600 do error_response! end
 
     namespace '/' do
-      get '' do
-        [ 304, { 'Location' => '/ui/' } ]
-      end
-      get 'ui' do
+      get %r{^(ui)?$} do
         [ 304, { 'Location' => '/ui/' } ]
       end
     end
@@ -55,19 +58,8 @@ module ControlPath::Service
     end
 
     namespace '/api' do
-      error 400..600 do
-        data =
-          server_metadata.
-          merge(status: response.status,
-          error: "Error #{response.status}")
-        content_type 'application/json'
-        response.body = [ Json.to_json(data) ]
-        logger.error data.inspect
-      end
-
       get '/?' do
-        json_body(server_metadata.
-                  merge(documentation))
+        json_body(documentation)
       end
 
       namespace '/client' do
@@ -103,7 +95,7 @@ module ControlPath::Service
       namespace '/status' do
         get PATH_RX do
           status = controller.fetch_status!(path)
-          json_body(server_metadata.merge(path: path, status: status))
+          json_body(path: path, status: status)
         end
       end
 
@@ -151,7 +143,7 @@ module ControlPath::Service
             controller.update_status!(action, path, control, request, clean_params, data) if action
           rescue => exc
             logger.error exc
-            control[:status] = 'API-ERROR'
+            control[:status] = API_ERROR
           end
           json_body control
         end
@@ -159,24 +151,14 @@ module ControlPath::Service
     end
 
     helpers do
-      include ControlPath::Json
+      include ControlPath::Json, ControlPath::Metadata
 
       def server_metadata
-        @server_metadata ||= {
-          api_name: api_name,
-          api_version: api_version,
-          now: format_time(now),
-          host: Socket.gethostname,
-          pid: $$,
-        }.freeze
-      end
-
-      def api_name
-        @api_name || "control_path"
-      end
-
-      def api_version
-        @api_version || ControlPath::VERSION
+        @server_metadata ||=
+          metadata.
+          merge(host: Socket.gethostname,
+                pid: $$,
+                )
       end
 
       def now
@@ -185,17 +167,17 @@ module ControlPath::Service
 
       def path
         @path ||=
-          params[:captures].first
-          .gsub(%r{/+}, '/').freeze
-      end
-
-      def format_time time
-        controller.format_time(time)
+          params[:captures].first.
+          to_s.gsub(%r{/+}, '/').freeze
       end
 
       def json_body data, raw = false
-        content = raw ? data : to_json(data)
-        [ 200, { 'Content-Type' => 'application/json' }, [ content.to_s ] ]
+        content = raw ? data : to_json(server_metadata.merge(data))
+        headers = { 'Content-Type' => 'application/json' }
+        server_metadata.each do | k, v |
+          headers["X-ControlPath-#{k}"] = v.to_s unless v.nil?
+        end
+        [ 200, headers, [ content.to_s ] ]
       end
 
       def clean_params params = self.params
@@ -211,9 +193,33 @@ module ControlPath::Service
       def locals
         @locals ||= {
           params: clean_params,
-          path: path,
-          now: format_time(now),
+          path:   path,
+          now:    format_time(now),
         }
+      end
+
+      def error_response! ct = 'application/json'
+        data =
+          server_metadata.
+          merge(uri: full_uri,
+                path: path,
+                status: API_ERROR,
+                error: "#{response.status}")
+        logger.error PP.pp(data.inspect, '')
+        content_type ct
+        case ct
+        when /json/
+          body = to_json(data)
+          response.body = [ body ]
+        else
+          erb :error, locals.merge(error: data)
+        end
+      end
+
+      def full_uri
+        query = request.query_string
+        query = "?#{query}" unless query.empty?
+        "#{request.base_url}#{request.path}#{query}"
       end
 
       def documentation
