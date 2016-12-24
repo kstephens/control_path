@@ -27,20 +27,18 @@ module ControlPath
     end
 
     def []= path, value
-      data = { data: Modification[self.data] }
-      result = Modification[data]
+      result = root = { data: Modification[self.data] }
       p = parse_path(path)
       p.unshift(:data)
       t = p.pop
       p.each do | k |
-        Modification[result]
         if (v = result[k]).nil?
-          v = result[k] = Modification[empty_data(k)]
+          v = Modification[result][k] = empty_data(k)
         end
         result = v
       end
-      result[t] = value
-      self.data = data[:data]
+      Modification[result][t] = value
+      self.data = root[:data]
       value
     rescue => exc
       raise Error::InvalidPath, "#{path}"

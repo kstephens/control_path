@@ -54,7 +54,7 @@ module ControlPath
         subject['c/d'] = v
         expect(subject.data)  .to eq data.merge(c: { d: v, e: 4 })
         expect(subject.modified?) .to be_falsey
-        expect(subject.modified?(data[:c])) .to be_falsey # BUG: should be truthy
+        expect(subject.modified?(data[:c])) .to be_truthy
       end
       it "'c'" do
         subject['c'] = v
