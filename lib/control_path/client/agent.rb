@@ -15,9 +15,10 @@ module ControlPath::Client
     attr_accessor :response, :response_prev
     attr_accessor :new_data, :prev_data, :data
     attr_accessor :prev_interval
-    attr_accessor :host, :agent_id
+    attr_accessor :host, :agent_id, :agent_tick
 
     def initialize opts = nil, &blk
+      self.agent_tick = 0
       @last_intervals = [ ]
       self.host = Socket.gethostname
       self.agent_id = new_token
@@ -85,6 +86,7 @@ module ControlPath::Client
       end
       query[:host] = host
       query[:agent_id] = agent_id
+      query[:agent_tick] = self.agent_tick += 1
       query[:interval] = max_interval(interval)
       uri.query = query.map{|k, v| "#{k}=#{v}"} * '&'
 

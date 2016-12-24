@@ -101,6 +101,7 @@ module ControlPath::Service
         merge(time:                  format_time(now),
               client_ip:             request.ip.to_s,
               agent_id:              params[:agent_id],
+              agent_tick:            params[:agent_tick],
               path:                  path,
               seen_control_version:  params[:control_version],
               seen_current_control_version:  nil,

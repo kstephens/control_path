@@ -176,6 +176,7 @@ var Status = React.createClass({
           <TimeAsAge time={status.time} now={now} v_class={status_age_class} />
           <KeyVal k="status_interval" v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
           <span className="smaller"><KeyVal k="agent_id" v={status.agent_id} /></span>
+          <KeyVal k="agent_tick" v={status.agent_tick} />
         </div>
         <div className="line">
           <span className="lc"><span className="dim smaller right">status:</span></span>
