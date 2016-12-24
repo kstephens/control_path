@@ -57,7 +57,7 @@ var KeyVal = React.createClass({
     return (
       <span className="key_val">
         <a href="#" className="display_on_hover">
-          <span className="v"><span className={this.props.v_class}><FlashOnChange content={this.props.v}>{this.props.v}</FlashOnChange></span></span>
+          <span className="v"><span  className={this.props.v_class}><FlashOnChange content={this.props.v}>{this.props.v}</FlashOnChange></span></span>
           <span className="display_on_hover"> : <span className="k"><FlashOnChange content={this.props.k}>{this.props.k}</FlashOnChange></span></span>
         </a>
       </span>
@@ -98,7 +98,7 @@ var TimeShort = React.createClass({
   render: function() {
     var time = this.props.time;
     return (
-      <FlashOnChange content={time}><Shorten content={time} left_width="10" content_class="{this.props.v_class}"/></FlashOnChange>
+      <FlashOnChange content={time}><Shorten content={time} left_width="10" content_class="{this.props.v_class}" /></FlashOnChange>
     );
   }
 });
@@ -135,6 +135,13 @@ var Control = React.createClass({
   }
 });
 
+var ControlData = React.createClass({
+  render: function() {
+    return (
+      <ZoomOnHover><pre className="code">{JSON.stringify(this.props.data, null, 2)}</pre></ZoomOnHover>
+    );
+  }
+});
 
 var Status = React.createClass({
   render: function() {
@@ -155,7 +162,7 @@ var Status = React.createClass({
 
     var control_time = parse_time(control.time);
     var status_time  = parse_time(status.time);
-    var version_age  = control.time ? (seen_current_control_version ? "" : diff_time_str(diff_time(control_time, status_time))) : "???";
+    var version_age  = control.time ? (seen_current_control_version ? "" : diff_time_str(diff_time(status_time, control_time))) : "???";
 
     var status_interval = status.interval;
     var status_age = diff_time(now, status_time);
@@ -172,23 +179,29 @@ var Status = React.createClass({
       <div className="status">
         <div className="line">
           <KeyVal k="path" v={data.path} v_class={"path"} />
-          <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
+          <span className="h-margin-large">
+            <KeyVal k={status.host ? status.client_ip : "client_ip"} v={status.host || status.client_ip} />
+          </span>
+          <span className="h-margin-large">
           <TimeAsAge time={status.time} now={now} v_class={status_age_class} />
           <KeyVal k="status_interval" v={status_interval && ((status_age_class == "unresponsive" ? "> " : "< ") + (status_interval || '???') + " sec")} />
-          <span className="smaller"><KeyVal k="agent_id" v={status.agent_id} /></span>
+          </span>
+          <span className="h-margin-large">
+          <span className="smaller"><Shorten content={status.agent_id} /></span>
           <KeyVal k="agent_tick" v={status.agent_tick} />
+          </span>
         </div>
         <div className="line">
           <span className="lc"><span className="dim smaller right">status:</span></span>
           <span className="rc">
             <span className="version"><Shorten content={status.seen_control_version || '???'} content_class={version_class} /></span>
-            <KeyVal k="version_age"  v={version_age}              v_class={version_class} />
+            <KeyVal k="status_version_age"  v={version_age} v_class={version_class} />
           </span>
         </div>
         <div className="line">
           <span className="lc"><span className="dim smaller right">data:</span></span>
           <span className="rc">
-             <ZoomOnHover><pre className="code">{JSON.stringify(status.data, null, 2)}</pre></ZoomOnHover>
+             <ControlData data={status.data} />
           </span>
         </div>
         <div className="line">
@@ -201,7 +214,7 @@ var Status = React.createClass({
         <div className="line">
           <span className="lc"><span className="dim smaller right">data:</span></span>
           <span className="rc">
-             <ZoomOnHover><pre className="code">{JSON.stringify(control.data, null, 2)}</pre></ZoomOnHover>
+             <ControlData data={control.data} />
           </span>
         </div>
         <div className="line">

@@ -141,8 +141,12 @@ span.display_on_hover {
 /*****************************/
 
 .h-margin {
-  right-margin: 10px;
-  left-margin: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+.h-margin-large {
+  margin-right: 20px;
+  margin-left: 20px;
 }
 .dim {
   opacity: 0.4;
