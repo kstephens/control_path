@@ -1,11 +1,11 @@
 require 'spec_helper'
-require 'control_path/data_editor'
+require 'control_path/pathed_data'
 require 'fileutils'
 
 module ControlPath
-  describe DataEditor do
-    Error = DataEditor::Error
-    subject { DataEditor[data] }
+  describe PathedData do
+    Error = PathedData::Error
+    subject { PathedData[data] }
     let(:data) do
       {
         a: 1,

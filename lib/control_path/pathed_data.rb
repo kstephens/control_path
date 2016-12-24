@@ -2,7 +2,7 @@ require 'control_path'
 require 'control_path/path'
 
 module ControlPath
-  class DataEditor
+  class PathedData
     class Error < ControlPath::Error
       class InvalidPath < self ; end
     end
