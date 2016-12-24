@@ -1,4 +1,5 @@
 require 'control_path'
+require 'control_path/path'
 
 module ControlPath
   class DataEditor
@@ -42,7 +43,6 @@ module ControlPath
       self.data = data[:data]
       value
     rescue => exc
-      binding.pry
       raise Error::InvalidPath, "#{path}"
     end
 
@@ -55,17 +55,8 @@ module ControlPath
       end
     end
 
-    def parse_path path
-      case path
-      when Array
-        path.map(&:to_s)
-      else
-        path.to_s.split('/', 9999)
-      end.
-        compact.
-        map{|k| k =~ /^(\d+)$/ ? $1.to_i : k }.
-        reject{|k| k == '' || k == '.' || k == '/' }.
-        map(&:to_sym)
+    def parse_path x
+      Path[x]
     end
 
     def modified? o = data
@@ -77,8 +68,6 @@ module ControlPath
       alias :modified? :modified
       def self.[] o
         o.extend(self)
-      rescue => exc
-        binding.pry
       end
       def []= k, v
         self.modified = true if self[k] != v
