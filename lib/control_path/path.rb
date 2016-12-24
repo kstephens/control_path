@@ -98,19 +98,38 @@ module ControlPath
             traverse! child(node, name), dir / name, rest, true
           end
         else
-          if exists?(node, name)
-            if rest.empty?
-              emit!(dir, name)
-            else
-              traverse! child(node, name), dir / name, rest, deep
+          if pat = pattern?(name)
+            dir(node).each do | name |
+              if pat.match(name.to_s)
+                emit_or_traverse!(node, dir, name, rest, deep)
+              end
             end
           else
-            if deep
-              dir(node).each do | name |
-                traverse! child(node, name), dir / name, rest, deep
+            if exists?(node, name)
+              emit_or_traverse!(node, dir, name, rest, deep)
+            else
+              if deep
+                dir(node).each do | name |
+                  traverse! child(node, name), dir / name, rest, deep
+                end
               end
             end
           end
+        end
+      end
+
+      def emit_or_traverse! node, dir, name, rest, deep
+        if rest.empty?
+          emit!(dir, name)
+        else
+          traverse! child(node, name), dir / name, rest, deep
+        end
+      end
+
+      def pattern? name
+        p = name.to_s
+        if p.gsub!(/\*/, ".*")
+          Regexp.new("\\A#{p}\\Z")
         end
       end
 

@@ -55,6 +55,7 @@ module ControlPath
             }
           },
           f: 5,
+          bar: 11,
         }
       end
 
@@ -69,7 +70,7 @@ module ControlPath
           .to eq [ "c" ]
 
         expect(glob['*'])
-          .to eq ["a", "b", "c", "f"]
+          .to eq ["a", "b", "bar", "c", "f"]
         expect(glob['a/*'])
           .to eq [ ]
         expect(glob['c/*'])
@@ -78,6 +79,9 @@ module ControlPath
           .to eq ["c/d", "c/e", "c/f"]
         expect(glob['*/*/*'])
           .to eq ["c/f/x", "c/f/y"]
+        expect(glob['b*'])
+          .to eq ["b", "bar"]
+
         expect(glob['**'])
           .to eq [ "c/f/x", "c/f/y" ]
       end

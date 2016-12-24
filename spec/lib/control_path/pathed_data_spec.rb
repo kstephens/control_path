@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'control_path/pathed_data'
-require 'fileutils'
 
 module ControlPath
   describe PathedData do
