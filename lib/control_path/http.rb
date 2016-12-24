@@ -4,35 +4,23 @@ require 'control_path/json'
 
 module ControlPath
   class Http
-    def GET uri
-      uri = URI.parse(uri) unless URI === uri
-      response = nil
-      Net::HTTP.start(uri.host, uri.port) do |http|
-        request = Net::HTTP::Get.new uri
-        response = http.request request
-        response = Response.new(response, uri)
-        yield response
-      end
+    def GET uri, &blk
+      GO uri, nil , Net::HTTP::Get, &blk
     end
 
-    def PUT uri, body
-      uri = URI.parse(uri) unless URI === uri
-      response = nil
-      Net::HTTP.start(uri.host, uri.port) do |http|
-        request = Net::HTTP::Put.new uri
-        request.body = body
-        response = http.request request
-        response = Response.new(response, uri)
-        yield response
-      end
+    def PUT uri, body, &blk
+      GO uri, body, Net::HTTP::Put, &blk
     end
 
-    def PATCH uri, body
+    def PATCH uri, body, &blk
+      GO uri, body, Net::HTTP::Patch, &blk
+    end
+
+    def GO uri, body, rq_cls, &blk
       uri = URI.parse(uri) unless URI === uri
-      response = nil
       Net::HTTP.start(uri.host, uri.port) do |http|
-        request = Net::HTTP::Patch.new uri
-        request.body = body
+        request = rq_cls.new uri
+        request.body = body if body
         response = http.request request
         response = Response.new(response, uri)
         yield response
