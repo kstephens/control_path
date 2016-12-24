@@ -293,8 +293,12 @@ var StatusBox = React.createClass({
       <div className="status_box">
         <div>
           <KeyVal k="path" v={data.path} v_class="path" />
+          <span className="h-margin-large">
           <KeyVal k="host" v={data.host} />
+          </span>
+          <span className="h-margin-large">
           <KeyVal k="now"  v={data.now} />
+          </span>
           <span className="error">{data.error}</span>
           <span className="right">
           <KeyVal k="api_name"     v={data.api_name} />
