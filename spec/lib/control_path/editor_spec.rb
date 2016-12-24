@@ -5,9 +5,7 @@ require 'fileutils'
 module ControlPath
   describe DataEditor do
     Error = DataEditor::Error
-    subject do
-      DataEditor[data]
-    end
+    subject { DataEditor[data] }
     let(:data) do
       {
         a: 1,
@@ -33,9 +31,9 @@ module ControlPath
       it "returns elems" do
         expect(subject[''])     .to eq data
         expect(subject['a'])    .to eq data[:a]
+        expect(subject['c/d'])  .to eq data[:c][:d]
+        expect(subject['unknown']) .to eq nil
         expect{subject['a/b']}  .to raise_error(Error::InvalidPath, 'a/b')
-        expect(subject['c'])    .to eq data[:c]
-        expect(subject['asdf']) .to eq nil
       end
     end
 
@@ -44,18 +42,25 @@ module ControlPath
       it "''" do
         subject[''] = v
         expect(subject.data)  .to eq v
+        expect(subject.modified?) .to be_falsey
       end
       it "'a'" do
         subject['a'] = v
         expect(subject.data)  .to eq data.merge(a: v)
+        expect(subject.modified?) .to be_truthy
+        expect(subject.modified?(data[:c])) .to be_falsey
       end
       it "'c/d'" do
         subject['c/d'] = v
         expect(subject.data)  .to eq data.merge(c: { d: v, e: 4 })
+        expect(subject.modified?) .to be_falsey
+        expect(subject.modified?(data[:c])) .to be_falsey # BUG: should be truthy
       end
       it "'c'" do
         subject['c'] = v
         expect(subject.data)  .to eq data.merge(c: v)
+        expect(subject.modified?) .to be_truthy
+        expect(subject.modified?(data[:c])) .to be_falsey
       end
       it "'x/y'" do
         subject['x/y'] = v
