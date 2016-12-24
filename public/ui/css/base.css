@@ -7,6 +7,8 @@ body {
   padding: 1em;
 }
 
+/*****************************/
+
 a {
   text-decoration: none;
   color: #ccc;
@@ -16,9 +18,15 @@ a:hover {
   text-decoration: none;
 }
 
-div.line {
-    display: block;
-    overflow: hidden;
+/*****************************/
+
+hr {
+  display: block;
+  width: 100%;
+  border-height: 1px;
+  border-width: 100%;
+  border-style: solid;
+  border-color: #222;
 }
 
 div.status {
@@ -30,11 +38,11 @@ div.status {
 /*****************************/
 
 span.lc {
-    float: left;
-    width: 4em;
+  float: left;
+  width: 4em;
 }
 span.rc {
-    width: auto;
+  width: auto;
 }
 
 /*****************************/
@@ -68,7 +76,6 @@ span.unresponsive {
 span.very_unresponsive {
   color: #f42 !important;
 }
-
 
 /*****************************/
 
@@ -140,6 +147,10 @@ span.display_on_hover {
 
 /*****************************/
 
+div.line {
+  display: block;
+  overflow: hidden;
+}
 .h-margin {
   margin-right: 10px;
   margin-left: 10px;
