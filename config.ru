@@ -35,6 +35,7 @@ To SIGTERM this control_path server process:
         new_data: new_data,
         ).test!
   thr = Thread.new do | thr |
+    sleep 2
     agent.run!
   end
 end
