@@ -26,7 +26,7 @@ module ControlPath::Service
       files.map do | file |
         control, controls = merged_controls(file[:path])
         status = store.read(file[:path], STATUS)
-        control_version = control && control[:control_version]
+        control_version = control && control[:version]
         seen_control_version = status[:seen_control_version]
         status = status.merge(seen_current_control_version: control_version.to_s == seen_control_version.to_s)
         { path: file[:path],
