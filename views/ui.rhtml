@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- <%= controller.new_token %> -->
     <meta charset="utf-8">
     <title>control_path</title>
     <!-- Not present in the tutorial. Just for basic styling. -->
@@ -13,7 +14,7 @@
   </head>
   <body>
     <div id="content"></div>
-    <script type="text/babel" src="/ui/js/index.js"></script>
+    <script type="text/babel" src="/js/ui.js"></script>
     <script type="text/babel">
       var locals = <%= to_json(locals) %>;
       var params = locals["params"];

@@ -57,6 +57,13 @@ module ControlPath::Service
       end
     end
 
+    namespace '/js' do
+      get '/ui.js' do
+        content_type 'application/javascript'
+        erb :'js/ui.js'
+      end
+    end
+
     namespace '/api' do
       get '/?' do
         json_body(documentation)
@@ -167,8 +174,8 @@ module ControlPath::Service
 
       def path
         @path ||=
-          params[:captures].first.
-          to_s.gsub(%r{/+}, '/').freeze
+          (x = params[:captures]) &&
+          (x.first.to_s.gsub(%r{/+}, '/').freeze)
       end
 
       def json_body data, raw = false
