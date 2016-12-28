@@ -14,11 +14,11 @@ var diff_time_str = function(dt) {
   var dta = dt < 0 ? - dt : dt;
   if ( dta < 90 )
     return "" + (dt).toFixed(2) + " sec";
-  if ( dta < 3 * 60 * 60)
+  if ( dta < 3 * 60 * 60 )
     return "" + (dt / 60).toFixed(2) + " min";
   if ( dta < 3 * 24 * 60 * 60 )
     return "" + (dt / (60 * 60)).toFixed(2) + " hr";
-  return "" + (dt / (24 * 60 * 60)).tofixed(2) + " day";
+  return   "" + (dt / (24 * 60 * 60)).toFixed(2) + " day";
 };
 var parse_time = function(x) {
   if ( typeof x === 'string' )
