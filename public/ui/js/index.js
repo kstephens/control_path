@@ -1,9 +1,7 @@
 var ControlPath =
 function (options) {
 
-if ( ! options['interval'] )
-  options['interval'] = 5000;
-if ( options['interval'] < 5000 )
+if ( (options['interval'] || 0) < 5000 )
   options['interval'] = 5000;
 
 var diff_time = function(a, b) {
