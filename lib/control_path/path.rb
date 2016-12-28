@@ -75,54 +75,44 @@ module ControlPath
           blk = lambda {|dir, name| @result << (dir / name)}
         end
         @blk = blk
-        traverse! root, Path[''], path, false
+        traverse! root, Path[''], path
         @result
       ensure
         @blk = nil
       end
 
-      def traverse! node, dir, path, deep
+      def traverse! node, dir, path
         rest = path.rest
         case name = path.first
         when nil
         when :'*'
-          dir(node).each do | name |
-            if rest.empty?
-              emit!(dir, name)
-            else
-              traverse! child(node, name), dir / name, rest, deep
-            end
-          end
-        when :'**'
-          dir(node).each do | name |
-            traverse! child(node, name), dir / name, rest, true
-          end
+          traverse_children! node, dir, rest
         else
           if pat = pattern?(name)
-            dir(node).each do | name |
-              if pat.match(name.to_s)
-                emit_or_traverse!(node, dir, name, rest, deep)
+            children(node).each do | name |
+              if pat === name.to_s
+                emit_or_traverse! node, dir, name, rest
               end
             end
           else
-            if exists?(node, name)
-              emit_or_traverse!(node, dir, name, rest, deep)
-            else
-              if deep
-                dir(node).each do | name |
-                  traverse! child(node, name), dir / name, rest, deep
-                end
-              end
-            end
+            emit_or_traverse! node, dir, name, rest
           end
         end
       end
 
-      def emit_or_traverse! node, dir, name, rest, deep
+      def emit_or_traverse! node, dir, name, rest
         if rest.empty?
-          emit!(dir, name)
+          if exists?(node, name)
+            emit! dir, name
+          end
         else
-          traverse! child(node, name), dir / name, rest, deep
+          traverse! child(node, name), dir / name, rest
+        end
+      end
+
+      def traverse_children! node, dir, rest
+        children(node).each do | name |
+          emit_or_traverse! node, dir, name, rest
         end
       end
 
@@ -137,7 +127,7 @@ module ControlPath
         @blk.call(dir, name)
       end
 
-      def dir node
+      def children node
         node.respond_to?(:keys) ? node.keys.sort : [ ]
       end
 
