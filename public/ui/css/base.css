@@ -119,6 +119,15 @@ span.flash {
     color: #c44;
 }
 
+.notice {
+  text-align: center;
+  margin: 2em;
+  border: 1px;
+  border-color: #811;
+  background: #222;
+  color: #cc4;
+}
+
 /*****************************/
 
 a.zoom_on_hover {
