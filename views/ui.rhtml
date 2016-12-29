@@ -21,6 +21,7 @@
       var url = "/api/status" + locals["path"];
       ControlPath({
          url: url,
+         params: params,
          interval: Number(params['interval']),
          mountpoint: 'content'
        });
