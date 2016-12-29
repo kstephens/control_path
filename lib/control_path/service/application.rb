@@ -69,6 +69,12 @@ module ControlPath::Service
         json_body(documentation)
       end
 
+      namespace '/ping' do
+        get '/?' do
+          json_body(ping: "pong")
+        end
+      end
+
       namespace '/client' do
         get PATH_RX do
           update_status! :GET
