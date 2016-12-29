@@ -186,10 +186,14 @@ module ControlPath::Service
 
       def json_body data, raw = false
         content = raw ? data : to_json(server_metadata.merge(data))
-        headers = { 'Content-Type' => 'application/json' }
+        headers = {
+          'Content-Type' => 'application/json',
+          'Cache-Control' => 'max-age=172800',
+        }
         server_metadata.each do | k, v |
           headers["X-ControlPath-#{k}"] = v.to_s unless v.nil?
         end
+        cache_control :public, :max_age => 31536000
         [ 200, headers, [ content.to_s ] ]
       end
 
@@ -205,6 +209,7 @@ module ControlPath::Service
 
       def locals
         @locals ||= {
+          full_uri: full_uri,
           params: clean_params,
           path:   path,
           now:    format_time(now),
@@ -236,7 +241,7 @@ module ControlPath::Service
       def full_uri
         query = request.query_string
         query = "?#{query}" unless query.empty?
-        "#{request.base_url}#{request.path}#{query}"
+        URI.parse("#{request.base_url}#{request.path}#{query}")
       end
 
       def documentation
