@@ -39,7 +39,7 @@ module ControlPath::Service
     end
     attr_accessor :controller, :logger
 
-    PATH_RX = %r{^(/.*?)/?}
+    PATH_RX = %r{^(/.*)}
     API_ERROR = 'API-ERROR'.freeze
 
     not_found      do error_response! end

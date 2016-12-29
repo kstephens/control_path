@@ -57,7 +57,8 @@ module ControlPath::Service
     def children path, name
       validate_path! path
       rx = %r{\A#{Regexp.quote(dir)}(.*?)/#{Regexp.quote(name)}\Z}
-      Dir["#{dir}#{path}/**/#{name}"].map do | file |
+      glob = deep_path?(path) ? "#{dir}#{path}/**/#{name}" : "#{dir}#{path}/#{name}"
+      Dir[glob].map do | file |
         file.gsub!(%r{//+}, '/')
         if m = rx.match(file)
           { file: file,
@@ -75,6 +76,10 @@ module ControlPath::Service
       String === path and \
       %r{^/.*?} =~ path and \
       %r{//+} !~ path
+    end
+
+    def deep_path? path
+      %r{/$} =~ path
     end
 
     def validate_path! path

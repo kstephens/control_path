@@ -24,20 +24,59 @@ module ControlPath::Service
     end
 
     describe "#children" do
-      it "returns list of child paths" do
+      before do
         subject.write!("/foo", "something.json", { data: '/foo' })
+        subject.write!("/bar", "something.json", { data: '/bar' })
         subject.write!("/foo/bar", "something.json", { data: '/foo/bar' })
-        expect(subject.children("/bar", "something.json")) \
-          .to eq []
-        expect(subject.children("/", "something.json")) \
-          .to eq [
-                  {:file=>"#{dir}/foo/something.json",
-                    :path=>"/foo",
-                    :name=>"something.json"},
-                  {:file=>"#{dir}/foo/bar/something.json",
-                    :path=>"/foo/bar",
-                    :name=>"something.json"},
-                  ]
+        subject.write!("/foo/baz", "something.json", { data: '/foo/baz' })
+      end
+
+      context "with deep /foo/ path" do
+        it "returns list of child paths" do
+          expect(subject.children("/", "something.json")) \
+            .to eq [
+                    {:file=>"#{dir}/bar/something.json",
+                      :path=>"/bar",
+                      :name=>"something.json"},
+                    {:file=>"#{dir}/foo/something.json",
+                      :path=>"/foo",
+                      :name=>"something.json"},
+                    {:file=>"#{dir}/foo/bar/something.json",
+                      :path=>"/foo/bar",
+                      :name=>"something.json"},
+                    {:file=>"#{dir}/foo/baz/something.json",
+                      :path=>"/foo/baz",
+                      :name=>"something.json"},
+                   ]
+          expect(subject.children("/foo/", "something.json")) \
+            .to eq [
+                    {:file=>"#{dir}/foo/something.json",
+                      :path=>"/foo",
+                      :name=>"something.json"},
+                    {:file=>"#{dir}/foo/bar/something.json",
+                      :path=>"/foo/bar",
+                      :name=>"something.json"},
+                    {:file=>"#{dir}/foo/baz/something.json",
+                      :path=>"/foo/baz",
+                      :name=>"something.json"},
+                   ]
+        end
+      end
+      context "with shallow path" do
+        it "returns list of child paths" do
+          expect(subject.children("/bar", "something.json")) \
+            .to eq [
+                    {:file=>"#{dir}/bar/something.json",
+                      :path=>"/bar",
+                      :name=>"something.json"}
+                   ]
+          expect(subject.children("/foo", "something.json")) \
+            .to eq [
+                    {:file=>"#{dir}/foo/something.json",
+                      :path=>"/foo",
+                      :name=>"something.json"}
+                   ]
+        end
       end
     end
 
