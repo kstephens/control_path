@@ -58,9 +58,9 @@ module ControlPath::Service
     end
 
     namespace '/js' do
-      get '/ui.js' do
+      get '/:name.js' do
         content_type 'application/javascript'
-        erb :'js/ui.js'
+        erb :"js/#{params[:name]}.js"
       end
     end
 
