@@ -211,6 +211,10 @@ module ControlPath::Service
         }
       end
 
+      def h(text)
+        Rack::Utils.escape_html(text)
+      end
+
       def error_response! ct = 'application/json'
         data =
           server_metadata.
