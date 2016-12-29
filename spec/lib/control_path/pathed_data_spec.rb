@@ -17,15 +17,6 @@ module ControlPath
       }
     end
 
-    describe "#parse_path" do
-      it "returns an Array of Symbols or Integers" do
-        expect(subject.parse_path(''))   .to eq [ ]
-        expect(subject.parse_path('.'))  .to eq [ ]
-        expect(subject.parse_path('//')) .to eq [ ]
-        expect(subject.parse_path('a/b')) .to eq [ :a, :b ]
-      end
-    end
-
     describe "#[]" do
       it "returns elems" do
         expect(subject[''])     .to eq data

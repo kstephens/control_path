@@ -15,6 +15,20 @@ module ControlPath
       end
     end
 
+    describe ".[]" do
+      it "returns a normalized Path" do
+        expect(Path[''].to_a)      .to eq [ ]
+        expect(Path['.'].to_a)     .to eq [ ]
+        expect(Path['//'].to_a)    .to eq [ :'', :'' ]
+        expect(Path['a'].to_a)     .to eq [ :a ]
+        expect(Path['a/b'].to_a)   .to eq [ :a, :b ]
+        expect(Path['/a/b'].to_a)  .to eq [ :'', :a, :b ]
+        expect(Path['a//b///c'].to_a) .to eq [ :a, :b, :c ]
+        expect(Path['//a//b///c'].to_a) .to eq [ :'', :a, :b, :c ]
+        expect(Path['//a//b///c/'].to_a) .to eq [ :'', :a, :b, :c, :'' ]
+      end
+    end
+
     describe "#/" do
       it "concats elements" do
         expect((subject / nil).to_a)   .to eq [:a, 0, :c]
@@ -23,11 +37,34 @@ module ControlPath
       end
     end
 
+    describe "#absolute?" do
+      it "works" do
+        expect(Path[].absolute?)     .to be false
+        expect(Path[nil].absolute?)  .to be false
+        expect(Path["//"].absolute?) .to be true
+        expect(Path["a"].absolute?)  .to be false
+        expect(Path["/a"].absolute?)  .to be true
+      end
+    end
+
+    describe "#deep?" do
+      it "works" do
+        expect(Path[].deep?)      .to be false
+        expect(Path[nil].deep?)   .to be false
+        expect(Path["//"].deep?)  .to be true
+        expect(Path["a"].deep?)   .to be false
+        expect(Path["/a"].deep?)    .to be false
+        expect(Path["/a/"].deep?)   .to be true
+        expect(Path["/a/b"].deep?)  .to be false
+      end
+    end
+
     describe "#empty?" do
       it "works" do
         expect(Path[].empty?)     .to be true
         expect(Path[nil].empty?)  .to be true
-        expect(Path["//"].empty?) .to be true
+        expect(Path[""].empty?)   .to be true
+        expect(Path["//"].empty?) .to be false
         expect(Path["a"].empty?)  .to be false
         expect(Path["a"].rest.empty?)  .to be true
       end

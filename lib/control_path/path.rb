@@ -41,15 +41,22 @@ module ControlPath
     end
 
     def parse path
+      elems = \
       case path
       when Array
         path.map(&:to_s)
       else
         path.to_s.split('/', 9999)
-      end.
-        compact.
+      end
+      head = elems.shift if elems[0]  && elems[0] .empty?
+      tail = elems.pop   if elems[-1] && elems[-1].empty?
+      elems =
+        elems.
         map{|k| k =~ /^(\d+)$/ ? $1.to_i : k.to_sym }.
         reject{|k| k == :'' || k == :'.' || k == :'/' }
+      elems.unshift head.to_sym if head
+      elems.push    tail.to_sym if tail
+      elems
     end
 
     def inspect
@@ -58,6 +65,14 @@ module ControlPath
 
     def to_s
       @elements * '/'
+    end
+
+    def absolute?
+      @elements.first == :''
+    end
+
+    def deep?
+      @elements[-1] == :''
     end
 
     def method_missing sel, *args, &blk
