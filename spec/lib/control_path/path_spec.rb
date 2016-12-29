@@ -123,7 +123,17 @@ module ControlPath
             .to eq ["b", "bar"]
         end
       end
-      context "for * globs" do
+      context "for // suffix" do
+        it "returns Paths" do
+          expect(glob['//'])
+            .to eq ["a", "b", "bar", "c", "c/d", "c/e", "c/f", "c/f/x", "c/f/y", "f"]
+          expect(glob['c/'])
+            .to eq ["c/d", "c/e", "c/f", "c/f/x", "c/f/y"]
+          expect(glob['c/f/'])
+            .to eq ["c/f/x", "c/f/y"]
+        end
+      end
+      context "for ** globs" do
         it "returns Paths" do
           skip "not implemented"
           expect(glob['**'])

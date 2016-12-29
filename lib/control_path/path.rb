@@ -97,21 +97,24 @@ module ControlPath
       end
 
       def traverse! node, dir, path
+        name = path.first
         rest = path.rest
-        case name = path.first
-        when nil
-        when :'*'
+        case
+        when name.nil?
+        when name == :'' && rest.empty?
+          traverse_deep! node, dir
+        when name == :''
+          traverse! node, dir, rest
+        when name == :'*'
           traverse_children! node, dir, rest
-        else
-          if pat = pattern?(name)
-            children(node).each do | name |
-              if pat === name.to_s
-                emit_or_traverse! node, dir, name, rest
-              end
+        when (pat = pattern?(name))
+          children(node).each do | name |
+            if pat === name.to_s
+              emit_or_traverse! node, dir, name, rest
             end
-          else
-            emit_or_traverse! node, dir, name, rest
           end
+        else
+          emit_or_traverse! node, dir, name, rest
         end
       end
 
@@ -131,6 +134,13 @@ module ControlPath
         end
       end
 
+      def traverse_deep! node, dir
+        children(node).each do | name |
+          emit! dir, name if exists?(node, name)
+          traverse_deep! child(node, name), dir / name
+        end
+      end
+
       def pattern? name
         p = name.to_s
         if p.gsub!(/\*/, ".*")
@@ -142,6 +152,7 @@ module ControlPath
         @blk.call(dir, name)
       end
 
+      # Interface to nodes:
       def children node
         node.respond_to?(:keys) ? node.keys.sort : [ ]
       end
